@@ -41,6 +41,10 @@ interface Attributes {
             fun code(assembler: Assembler<CodeBuilder>)
             fun code(format: String, vararg args: Any?)
         }
+
+        interface Comments {
+            fun comment(format: String, vararg args: Any?)
+        }
     }
 
     
@@ -73,6 +77,14 @@ interface Attributes {
                 override fun code(assembler: Assembler<CodeBuilder>) {
                     adder(source, CodeBuilder().buildWith(assembler))
                 }
+
+                override fun code(format: String, vararg args: Any?) {
+                    adder(source, CodeBlock.of(format, args))
+                }
+            }
+
+        internal fun <Source> commentAdder(adder: (Source, CodeBlock) -> Unit): Has.Comments =
+            object : Has.Comments, Sourced<Source> by overridenSource() {
 
                 override fun code(format: String, vararg args: Any?) {
                     adder(source, CodeBlock.of(format, args))
