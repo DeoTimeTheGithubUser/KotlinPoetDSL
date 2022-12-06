@@ -2,6 +2,7 @@ package dsl
 
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.asTypeName
@@ -35,6 +36,11 @@ interface Attributes {
         fun annotation(assembler: Assembler<AnnotationBuilder>)
     }
 
+    interface Codeable {
+        fun code(assembler: Assembler<CodeBuilder>)
+        fun code(format: String, vararg args: Any?)
+    }
+
     interface Property<S> : Sourced<S>, Modifiers, Nameable, Annotatable
 
     companion object {
@@ -54,6 +60,17 @@ interface Attributes {
             object : Annotatable, Sourced<Source> by overridenSource() {
                 override fun annotation(assembler: Assembler<AnnotationBuilder>) {
                     holder(source).add(AnnotationBuilder().buildWith(assembler))
+                }
+            }
+
+        internal fun <Source> codeAdder(adder: (Source, CodeBlock) -> Unit): Codeable =
+            object : Codeable, Sourced<Source> by overridenSource() {
+                override fun code(assembler: Assembler<CodeBuilder>) {
+                    adder(source, CodeBuilder().buildWith(assembler))
+                }
+
+                override fun code(format: String, vararg args: Any?) {
+                    adder(source, CodeBlock.of(format, args))
                 }
             }
 

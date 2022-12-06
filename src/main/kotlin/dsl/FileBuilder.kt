@@ -1,5 +1,6 @@
 package dsl
 
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 
 class FileBuilder : Buildable<FileSpec>,
