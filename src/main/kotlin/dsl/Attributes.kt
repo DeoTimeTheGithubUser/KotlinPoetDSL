@@ -1,5 +1,6 @@
 package dsl
 
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -9,7 +10,6 @@ import dsl.utils.buildCollectionTo
 import kotlin.reflect.KClass
 
 interface Attributes {
-
 
     interface Sourced<S> : Attributes {
         val source: S
@@ -31,7 +31,11 @@ interface Attributes {
         fun type(type: KClass<*>) = type(type.asTypeName())
     }
 
-    interface Property<S> : Sourced<S>, Modifiers, Nameable
+    interface Annotatable {
+        fun annotation(assembler: Assembler<AnnotationBuilder>)
+    }
+
+    interface Property<S> : Sourced<S>, Modifiers, Nameable, Annotatable
 
     companion object {
 
@@ -43,6 +47,13 @@ interface Attributes {
             object : Modifiers, Sourced<Source> by overridenSource() {
                 override fun modifiers(assembler: CollectionAssembler<KModifier>) {
                     buildCollectionTo(holder(source), assembler)
+                }
+            }
+
+        internal fun <Source> annotationVisitor(holder: (Source) -> MutableCollection<AnnotationSpec>): Annotatable =
+            object : Annotatable, Sourced<Source> by overridenSource() {
+                override fun annotation(assembler: Assembler<AnnotationBuilder>) {
+                    holder(source).add(AnnotationBuilder().buildWith(assembler))
                 }
             }
 
@@ -60,10 +71,15 @@ interface Attributes {
             }
         }
 
-        internal fun <S> property(modifiers: (S) -> MutableCollection<KModifier>): Property<S> =
-            object : Sourced<S> by overridenSource(),
+        internal fun <S> property(
+            modifiers: (S) -> MutableCollection<KModifier>,
+            annotations: (S) -> MutableCollection<AnnotationSpec>
+        ): Property<S> =
+            object :
+                Sourced<S> by overridenSource(),
                 Property<S>, Modifiers by modifierVisitor(modifiers),
-                Nameable by nameHolder() {}
+                Nameable by nameHolder(),
+                Annotatable by annotationVisitor(annotations) {}
 
     }
 

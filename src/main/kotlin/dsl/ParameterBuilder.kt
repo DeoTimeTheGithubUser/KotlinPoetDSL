@@ -7,7 +7,10 @@ import kotlin.reflect.KClass
 
 class ParameterBuilder :
     Buildable<ParameterSpec>,
-    Attributes.Property<ParameterSpec.Builder> by Attributes.property(ParameterSpec.Builder::modifiers) {
+    Attributes.Property<ParameterSpec.Builder> by Attributes.property(
+        modifiers = ParameterSpec.Builder::modifiers,
+        annotations = ParameterSpec.Builder::annotations
+    ) {
 
     override val source by lazy { ParameterSpec.builder(name, type) }
 

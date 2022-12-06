@@ -4,7 +4,10 @@ import com.squareup.kotlinpoet.FunSpec
 
 class FunctionBuilder :
     Buildable<FunSpec>,
-    Attributes.Property<FunSpec.Builder> by Attributes.property(FunSpec.Builder::modifiers) {
+    Attributes.Property<FunSpec.Builder> by Attributes.property(
+        modifiers = FunSpec.Builder::modifiers,
+        annotations = FunSpec.Builder::annotations
+    ) {
 
     override val source by lazy { FunSpec.builder(name) }
 

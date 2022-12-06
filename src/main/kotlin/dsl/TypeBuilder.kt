@@ -4,7 +4,11 @@ import com.squareup.kotlinpoet.TypeSpec
 
 class TypeBuilder :
     Buildable<TypeSpec>,
-    Attributes.Property<TypeSpec.Builder> by Attributes.property(TypeSpec.Builder::modifiers) {
+    Attributes.Property<TypeSpec.Builder> by Attributes.property(
+        modifiers = TypeSpec.Builder::modifiers,
+        annotations = TypeSpec.Builder::annotationSpecs
+    ) {
+
     private var type: Type? = null
 
     override val source by lazy {
