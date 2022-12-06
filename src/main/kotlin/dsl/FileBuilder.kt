@@ -5,8 +5,8 @@ import com.squareup.kotlinpoet.FileSpec
 
 class FileBuilder : Buildable<FileSpec>,
     Attributes.Sourced<FileSpec.Builder>,
-    Attributes.Nameable by Attributes.nameHolder(),
-    Attributes.Annotatable by Attributes.annotationVisitor(FileSpec.Builder::annotations) {
+    Attributes.Has.Name by Attributes.nameHolder(),
+    Attributes.Has.Annotations by Attributes.annotationVisitor(FileSpec.Builder::annotations) {
 
     private lateinit var pack: String
     override val source: FileSpec.Builder by lazy { FileSpec.builder(pack, name) }

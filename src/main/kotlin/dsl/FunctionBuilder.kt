@@ -4,7 +4,7 @@ import com.squareup.kotlinpoet.FunSpec
 
 class FunctionBuilder :
     Buildable<FunSpec>,
-    Attributes.Codeable by Attributes.codeAdder(FunSpec.Builder::addCode),
+    Attributes.Has.Code by Attributes.codeAdder(FunSpec.Builder::addCode),
     Attributes.Property<FunSpec.Builder> by Attributes.property(
         modifiers = FunSpec.Builder::modifiers,
         annotations = FunSpec.Builder::annotations

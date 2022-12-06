@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 
 class ParameterBuilder :
     Buildable<ParameterSpec>,
-    Attributes.Typed by Attributes.typedHolder(),
+    Attributes.Has.Type by Attributes.typedHolder(),
     Attributes.Property<ParameterSpec.Builder> by Attributes.property(
         modifiers = ParameterSpec.Builder::modifiers,
         annotations = ParameterSpec.Builder::annotations
