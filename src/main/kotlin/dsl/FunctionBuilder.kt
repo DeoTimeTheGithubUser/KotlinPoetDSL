@@ -17,7 +17,8 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
     Attributes.Body by Attributes.body(
         cozy = cozy,
         codeVisitor = FunSpec.Builder::addCode,
-        commentVisitor = FunSpec.Builder::addComment
+        commentVisitor = FunSpec.Builder::addComment,
+        documentationVisitor = FunSpec.Builder::addKdoc
     ),
     Attributes.Property by Attributes.property(
         cozy = cozy,
@@ -54,8 +55,8 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
     inline fun parameter(name: String, assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().apply { name(name) }.buildWith(assembler)) }
 
 
-    fun operator(op: Operator) {
-        name(op.name)
+    fun operator(op: Operator.Companion.() -> Operator) {
+        name(op(Operator.Companion).name)
         modifiers { +KModifier.OPERATOR }
     }
 

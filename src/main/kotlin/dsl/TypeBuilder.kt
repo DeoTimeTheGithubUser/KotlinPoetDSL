@@ -16,6 +16,7 @@ class TypeBuilder(private val cozy: Cozy<TypeBuilder> = Cozy()) :
     Attributes.Buildable<TypeSpec> by Attributes.buildWith(cozy, TypeSpec.Builder::build),
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, TypeSpec.Builder::addFunction),
     Attributes.Has.Type.Parameters by Attributes.parameterizedTypeVisitor(cozy, TypeSpec.Builder::typeVariables),
+    Attributes.Has.Documentation by Attributes.documentationVisitor(cozy, TypeSpec.Builder::addKdoc),
     Attributes.Property by Attributes.property(
         cozy = cozy,
         modifiers = TypeSpec.Builder::modifiers,

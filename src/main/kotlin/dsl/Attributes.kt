@@ -10,7 +10,6 @@ import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import dsl.utils.Assembler
 import dsl.utils.CollectionAssembler
-import dsl.utils.CollectionBuilder
 import dsl.utils.Cozy
 import dsl.utils.buildCollectionTo
 import dsl.utils.buildWith
@@ -82,6 +81,11 @@ interface Attributes {
         interface Comments : Has {
             fun comment(format: String, vararg args: Any)
         }
+
+        interface Documentation : Has {
+            fun documentation(assembler: Assembler<CodeBuilder>)
+            fun documentation(format: String, vararg args: Any)
+        }
     }
 
 
@@ -138,6 +142,20 @@ interface Attributes {
                 }
             }
 
+        internal fun <S> documentationVisitor(
+            cozy: SourcedCozy<S>,
+            visitor: (S, CodeBlock) -> Unit
+        ): Has.Documentation =
+            object : Has.Documentation, Sourced<S> by sourcedByCozy(cozy) {
+                override fun documentation(assembler: Assembler<CodeBuilder>) {
+                    visitor(source, CodeBuilder().buildWith(assembler))
+                }
+
+                override fun documentation(format: String, vararg args: Any) {
+                    visitor(source, CodeBlock.of(format, args))
+                }
+            }
+
         internal fun <S> commentVisitor(
             cozy: SourcedCozy<S>,
             visitor: (S, String, Array<out Any>) -> Unit
@@ -176,11 +194,13 @@ interface Attributes {
         internal fun <S> body(
             cozy: SourcedCozy<S>,
             codeVisitor: (S, CodeBlock) -> Unit,
-            commentVisitor: (S, String, Array<out Any>) -> Unit
+            commentVisitor: (S, String, Array<out Any>) -> Unit,
+            documentationVisitor: (S, CodeBlock) -> Unit
         ): Body = object :
             Body,
             Has.Code by codeVisitor(cozy, codeVisitor),
-            Has.Comments by commentVisitor(cozy, commentVisitor) {}
+            Has.Comments by commentVisitor(cozy, commentVisitor),
+            Has.Documentation by documentationVisitor(cozy, documentationVisitor) {}
 
         internal fun <S> property(
             cozy: SourcedCozy<S>,

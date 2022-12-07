@@ -13,6 +13,7 @@ class ParameterBuilder(private val cozy: Cozy<ParameterBuilder> = Cozy()) :
     Attributes.Sourced<ParameterSpec.Builder>,
     Attributes.Buildable<ParameterSpec> by Attributes.buildWith(cozy, ParameterSpec.Builder::build),
     Attributes.Has.Type by Attributes.typedHolder(cozy),
+    Attributes.Has.Documentation by Attributes.documentationVisitor(cozy, ParameterSpec.Builder::addKdoc),
     Attributes.Property by Attributes.property(
         cozy = cozy,
         modifiers = ParameterSpec.Builder::modifiers,
