@@ -32,7 +32,7 @@ class FileBuilder(private val cozy: Cozy<FileBuilder> = Cozy()) :
         source.addType(TypeBuilder().apply { name(name) }.buildWith(assembler))
     }
 
-    fun import(type: KClass<*>) { source.addImport(type) }
+    fun import(vararg types: KClass<*>) { types.forEach(source::addImport) }
     inline fun <reified T> import() = import(T::class)
 }
 

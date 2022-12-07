@@ -5,8 +5,10 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import dsl.utils.Assembler
 import dsl.utils.Cozy
+import dsl.utils.buildWith
 import dsl.utils.required
 import dsl.utils.withRequired
+import kotlin.reflect.KClass
 
 class TypeBuilder(private val cozy: Cozy<TypeBuilder> = Cozy()) :
     Attributes.Cozied<TypeBuilder>(cozy),
@@ -33,6 +35,13 @@ class TypeBuilder(private val cozy: Cozy<TypeBuilder> = Cozy()) :
             assembler()
         }
     }
+
+    fun initializer(assembler: Assembler<CodeBuilder>) {
+        source.addInitializerBlock(CodeBuilder().buildWith(assembler))
+    }
+
+    fun inherit(vararg types: KClass<*>) { types.forEach(source::superclass) }
+    inline fun <reified T> inherit() = inherit(T::class)
 
     @JvmInline
     value class Type private constructor(val init: (String) -> TypeSpec.Builder) {
