@@ -25,7 +25,30 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
         annotations = FunSpec.Builder::annotations,
     ) {
 
-    override val source by withRequired { FunSpec.builder(name) }
+    override val source by withRequired { model.builder(name) }
+
+    private var model = Model.Normal
+    private enum class Model(val builder: (String) -> FunSpec.Builder) {
+        Normal(FunSpec.Companion::builder),
+        Constructor({ FunSpec.constructorBuilder() }),
+        Getter({ FunSpec.getterBuilder() }),
+        Setter({ FunSpec.setterBuilder() })
+    }
+
+    fun constructor() {
+        nameNoOp()
+        model = Model.Constructor
+    }
+
+    fun getter() {
+        nameNoOp()
+        model = Model.Getter
+    }
+
+    fun setter() {
+        nameNoOp()
+        model = Model.Setter
+    }
 
     inline fun parameter(assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().buildWith(assembler)) }
     inline fun parameter(name: String, assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().apply { name(name) }.buildWith(assembler)) }
@@ -41,4 +64,8 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
 
     fun receiver(type: KClass<*>) { source.receiver(type) }
     inline fun <reified T> receiver() = returns(T::class)
+
+    private fun nameNoOp() {
+        name("no-op")
+    }
 }
