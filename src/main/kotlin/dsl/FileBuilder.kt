@@ -6,6 +6,7 @@ import dsl.utils.Cozy
 import dsl.utils.buildWith
 import dsl.utils.required
 import dsl.utils.withRequired
+import kotlin.reflect.KClass
 
 class FileBuilder(private val cozy: Cozy<FileBuilder> = Cozy()) :
     Attributes.Cozied<FileBuilder>(cozy),
@@ -30,6 +31,9 @@ class FileBuilder(private val cozy: Cozy<FileBuilder> = Cozy()) :
     inline fun type(name: String, assembler: Assembler<TypeBuilder>) {
         source.addType(TypeBuilder().apply { name(name) }.buildWith(assembler))
     }
+
+    fun import(type: KClass<*>) { source.addImport(type) }
+    inline fun <reified T> import() = import(T::class)
 }
 
 inline fun fileBuilder(closure: FileBuilder.() -> Unit) =
