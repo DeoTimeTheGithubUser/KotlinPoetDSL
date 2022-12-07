@@ -9,7 +9,7 @@ class ParameterBuilder(private val cozy: Cozy<ParameterBuilder> = Cozy()) :
     Attributes.Sourced<ParameterSpec.Builder>,
     Attributes.Buildable<ParameterSpec> by Attributes.buildWith(cozy, ParameterSpec.Builder::build),
     Attributes.Has.Type by Attributes.typedHolder(cozy),
-    Attributes.Property<ParameterBuilder, ParameterSpec.Builder> by Attributes.property(
+    Attributes.Property by Attributes.property(
         cozy = cozy,
         modifiers = ParameterSpec.Builder::modifiers,
         annotations = ParameterSpec.Builder::annotations,

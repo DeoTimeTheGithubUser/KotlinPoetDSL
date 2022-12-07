@@ -1,24 +1,35 @@
 package dsl
 
-import dsl.utils.required
-import dsl.utils.withRequired
-import kotlin.reflect.KProperty
-import kotlin.reflect.full.memberExtensionProperties
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.staticProperties
-
+annotation class Glitchy
 
 fun main() {
 
 
     val dsl = fileBuilder {
-        name("GlitchyUtil")
-        inPackage("idk")
+        name("GlitchyUtil") packaged "idk"
         type {
             name("GlitchyUtil")
             kind { Class }
             function {
                 name("add")
+                returns<Int>()
+                annotation {
+                    name("util")
+                    type<Glitchy>()
+                }
+                parameter {
+                    name("a")
+                    type<Int>()
+                }
+                parameter {
+                    name("b")
+                    type<Int>()
+                }
+                comment("this is such a glitchy function")
+                comment("it adds things together")
+                code {
+                    +"return a + b"()
+                }
             }
         }
     }

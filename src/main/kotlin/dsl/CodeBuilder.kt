@@ -15,5 +15,5 @@ class CodeBuilder(private val cozy: Cozy<CodeBuilder> = Cozy()) :
 
 }
 
-fun String.invoke(vararg args: Any?) = CodeBlock.of(this, args)
+operator fun String.invoke(vararg args: Any?) = CodeBlock.of(this, args)
 

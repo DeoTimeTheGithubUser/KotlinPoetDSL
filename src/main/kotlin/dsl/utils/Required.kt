@@ -24,7 +24,7 @@ class Required<T>(private var holder: (() -> Any?)? = null) {
     }
 
     operator fun getValue(ref: Any, prop: KProperty<*>) =
-        value ?: error("The property ${this.prop} is required to be initialized before it can be accessed.")
+        value ?: error("The property ${this.prop.name} is required to be initialized before it can be accessed.")
 
 
     class Accessor<T>(private val closure: () -> T) {

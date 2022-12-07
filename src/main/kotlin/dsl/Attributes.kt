@@ -3,7 +3,7 @@ package dsl
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.asTypeName
@@ -31,7 +31,15 @@ interface Attributes {
         fun build(): T
     }
 
-    interface Property<I, S> : Has.Modifiers, Has.Name, Has.Annotations
+    interface Property :
+        Has.Modifiers,
+        Has.Name,
+        Has.Annotations
+
+
+    interface Body :
+        Has.Code,
+        Has.Comments
 
     interface Has : Attributes {
         interface Modifiers : Has {
@@ -54,13 +62,17 @@ interface Attributes {
             fun annotation(assembler: Assembler<AnnotationBuilder>)
         }
 
+        interface Functions : Has {
+            fun function(assembler: Assembler<FunctionBuilder>)
+        }
+
         interface Code : Has {
             fun code(assembler: Assembler<CodeBuilder>)
             fun code(format: String, vararg args: Any?)
         }
 
         interface Comments : Has {
-            fun comment(format: String, vararg args: Any?)
+            fun comment(format: String, vararg args: Any)
         }
     }
 
@@ -97,21 +109,31 @@ interface Attributes {
                 override fun build() = holder(source)
             }
 
-        internal fun <S> codeAdder(cozy: SourcedCozy<S>, adder: (S, CodeBlock) -> Unit): Has.Code =
+        internal fun <S> codeVisitor(cozy: SourcedCozy<S>, visitor: (S, CodeBlock) -> Unit): Has.Code =
             object : Has.Code, Sourced<S> by sourcedByCozy(cozy) {
                 override fun code(assembler: Assembler<CodeBuilder>) {
-                    adder(source, CodeBuilder().buildWith(assembler))
+                    visitor(source, CodeBuilder().buildWith(assembler))
                 }
 
                 override fun code(format: String, vararg args: Any?) {
-                    adder(source, CodeBlock.of(format, args))
+                    visitor(source, CodeBlock.of(format, args))
                 }
             }
 
-        internal fun <S> commentAdder(cozy: SourcedCozy<S>, adder: (S, String, Array<out Any?>) -> Unit): Has.Comments =
+        internal fun <S> commentVisitor(
+            cozy: SourcedCozy<S>,
+            visitor: (S, String, Array<out Any>) -> Unit
+        ): Has.Comments =
             object : Has.Comments, Sourced<S> by sourcedByCozy(cozy) {
-                override fun comment(format: String, vararg args: Any?) {
-                    adder(source, format, args)
+                override fun comment(format: String, vararg args: Any) {
+                    visitor(source, format, args)
+                }
+            }
+
+        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S, FunSpec) -> Unit): Has.Functions =
+            object : Has.Functions, Sourced<S> by sourcedByCozy(cozy) {
+                override fun function(assembler: Assembler<FunctionBuilder>) {
+                    visitor(source, FunctionBuilder().buildWith(assembler))
                 }
             }
 
@@ -129,13 +151,22 @@ interface Attributes {
             }
         }
 
-        internal fun <I, S> property(
+        internal fun <S> body(
+            cozy: SourcedCozy<S>,
+            codeVisitor: (S, CodeBlock) -> Unit,
+            commentVisitor: (S, String, Array<out Any>) -> Unit
+        ): Body = object :
+            Body,
+            Has.Code by codeVisitor(cozy, codeVisitor),
+            Has.Comments by commentVisitor(cozy, commentVisitor) {}
+
+        internal fun <S> property(
             cozy: SourcedCozy<S>,
             modifiers: (S) -> MutableCollection<KModifier>,
             annotations: (S) -> MutableCollection<AnnotationSpec>,
-        ): Property<I, S> =
+        ): Property =
             object :
-                Property<I, S>,
+                Property,
                 Sourced<S> by sourcedByCozy(cozy),
                 Has.Modifiers by modifierVisitor(cozy, modifiers),
                 Has.Name by nameHolder(cozy),
@@ -144,5 +175,7 @@ interface Attributes {
     }
 
 }
+
+inline fun <reified T> Attributes.Has.Type.type() = type(T::class)
 
 private typealias SourcedCozy<S> = Cozy<out Attributes.Sourced<S>>

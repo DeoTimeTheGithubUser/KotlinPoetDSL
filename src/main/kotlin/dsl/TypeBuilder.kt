@@ -9,7 +9,8 @@ class TypeBuilder(private val cozy: Cozy<TypeBuilder> = Cozy()) :
     Attributes.Cozied<TypeBuilder>(cozy),
     Attributes.Sourced<TypeSpec.Builder>,
     Attributes.Buildable<TypeSpec> by Attributes.buildWith(cozy, TypeSpec.Builder::build),
-    Attributes.Property<TypeBuilder, TypeSpec.Builder> by Attributes.property(
+    Attributes.Has.Functions by Attributes.functionVisitor(cozy, TypeSpec.Builder::addFunction),
+    Attributes.Property by Attributes.property(
         cozy = cozy,
         modifiers = TypeSpec.Builder::modifiers,
         annotations = TypeSpec.Builder::annotationSpecs,
