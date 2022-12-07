@@ -1,34 +1,32 @@
 package dsl
 
-annotation class Glitchy
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.TypeName
+import dsl.utils.bounds
+import dsl.utils.typeParameter
+
+annotation class NumericalOperation
 
 fun main() {
 
 
     val dsl = fileBuilder {
-        name("GlitchyUtil") packaged "idk"
-        type {
-            name("GlitchyUtil")
+        name("Calculator") packaged "idk"
+        type("Calculator") {
             kind { Class }
-            function {
-                name("add")
+            typeParameters {
+                +typeParameter<Number>("T")
+            }
+            function("plus") {
                 returns<Int>()
-                annotation {
-                    name("util")
-                    type<Glitchy>()
-                }
-                parameter {
-                    name("a")
-                    type<Int>()
-                }
-                parameter {
-                    name("b")
-                    type<Int>()
-                }
-                comment("this is such a glitchy function")
-                comment("it adds things together")
+                modifiers { +KModifier.OPERATOR }
+                annotation { type<NumericalOperation>() }
+                receiver<Int>()
+                parameter("other") { type<Int>() }
+                comment("This function will add two integers")
+                comment("together, and then return that value.")
                 code {
-                    +"return a + b"()
+                    +"return this + other"()
                 }
             }
         }

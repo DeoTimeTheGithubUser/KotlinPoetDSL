@@ -1,6 +1,7 @@
 package dsl
 
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asTypeName
 import dsl.utils.Cozy
 import dsl.utils.required
 import dsl.utils.withRequired
@@ -10,6 +11,7 @@ class TypeBuilder(private val cozy: Cozy<TypeBuilder> = Cozy()) :
     Attributes.Sourced<TypeSpec.Builder>,
     Attributes.Buildable<TypeSpec> by Attributes.buildWith(cozy, TypeSpec.Builder::build),
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, TypeSpec.Builder::addFunction),
+    Attributes.Has.Type.Parameters by Attributes.parameterizedTypeVisitor(cozy, TypeSpec.Builder::typeVariables),
     Attributes.Property by Attributes.property(
         cozy = cozy,
         modifiers = TypeSpec.Builder::modifiers,

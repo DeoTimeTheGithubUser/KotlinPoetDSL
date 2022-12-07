@@ -6,9 +6,11 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import dsl.utils.Assembler
 import dsl.utils.CollectionAssembler
+import dsl.utils.CollectionBuilder
 import dsl.utils.Cozy
 import dsl.utils.buildCollectionTo
 import dsl.utils.buildWith
@@ -56,7 +58,12 @@ interface Attributes {
             fun type(type: ClassName)
             fun type(type: ParameterizedTypeName) = type(type.rawType)
             fun type(type: KClass<*>) = type(type.asTypeName())
+
+            fun interface Parameters : Has {
+                fun typeParameters(builder: CollectionAssembler<TypeVariableName>)
+            }
         }
+
 
         interface Annotations : Has {
             fun annotation(assembler: Assembler<AnnotationBuilder>)
@@ -64,6 +71,7 @@ interface Attributes {
 
         interface Functions : Has {
             fun function(assembler: Assembler<FunctionBuilder>)
+            fun function(name: String, assembler: Assembler<FunctionBuilder>)
         }
 
         interface Code : Has {
@@ -91,6 +99,16 @@ interface Attributes {
             object : Has.Modifiers, Sourced<S> by sourcedByCozy(cozy) {
                 override fun modifiers(assembler: CollectionAssembler<KModifier>) {
                     buildCollectionTo(holder(source), assembler)
+                }
+            }
+
+        internal fun <S> parameterizedTypeVisitor(
+            cozy: SourcedCozy<S>,
+            visitor: (S) -> MutableCollection<TypeVariableName>
+        ): Has.Type.Parameters =
+            object : Has.Type.Parameters, Sourced<S> by sourcedByCozy(cozy) {
+                override fun typeParameters(builder: CollectionAssembler<TypeVariableName>) {
+                    buildCollectionTo(visitor(source), builder)
                 }
             }
 
@@ -134,6 +152,10 @@ interface Attributes {
             object : Has.Functions, Sourced<S> by sourcedByCozy(cozy) {
                 override fun function(assembler: Assembler<FunctionBuilder>) {
                     visitor(source, FunctionBuilder().buildWith(assembler))
+                }
+
+                override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
+                    visitor(source, FunctionBuilder().apply { name(name) }.buildWith(assembler))
                 }
             }
 

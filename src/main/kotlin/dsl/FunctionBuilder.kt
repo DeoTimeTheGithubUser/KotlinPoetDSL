@@ -24,13 +24,13 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
     ) {
 
     override val source by withRequired { FunSpec.builder(name) }
-    inline fun parameter(assembler: Assembler<ParameterBuilder>) {
-        source.addParameter(ParameterBuilder().buildWith(assembler))
-    }
 
-    fun returns(type: KClass<*>) {
-        source.returns(type)
-    }
+    inline fun parameter(assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().buildWith(assembler)) }
+    inline fun parameter(name: String, assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().apply { name(name) }.buildWith(assembler)) }
 
+    fun returns(type: KClass<*>) { source.returns(type) }
     inline fun <reified T> returns() = returns(T::class)
+
+    fun receiver(type: KClass<*>) { source.receiver(type) }
+    inline fun <reified T> receiver() = returns(T::class)
 }

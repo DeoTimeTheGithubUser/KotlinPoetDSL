@@ -26,6 +26,10 @@ class FileBuilder(private val cozy: Cozy<FileBuilder> = Cozy()) :
     inline fun type(assembler: Assembler<TypeBuilder>) {
         source.addType(TypeBuilder().buildWith(assembler))
     }
+
+    inline fun type(name: String, assembler: Assembler<TypeBuilder>) {
+        source.addType(TypeBuilder().apply { name(name) }.buildWith(assembler))
+    }
 }
 
 inline fun fileBuilder(closure: FileBuilder.() -> Unit) =
