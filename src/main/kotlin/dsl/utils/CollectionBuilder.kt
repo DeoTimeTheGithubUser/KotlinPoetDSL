@@ -1,7 +1,5 @@
 package dsl.utils
 
-import dsl.Assembler
-
 interface CollectionBuilder<T> {
     operator fun T.unaryPlus()
     operator fun T.unaryMinus()

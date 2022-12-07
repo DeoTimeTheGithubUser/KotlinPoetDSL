@@ -1,22 +1,23 @@
 package dsl
 
+import dsl.utils.required
+import dsl.utils.withRequired
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.memberExtensionProperties
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.staticProperties
+
 
 fun main() {
 
-    val dsl = fileBuilder {
-        type {
-            name("asdf")
 
-        }
-    }
 //    val dsl = fileBuilder {
-//        function {
-//
-//        }
-//        TypeBuilder.Type.Selector.Anonymous
+//        name("GlitchyUtil")
+//        inPackage("idk")
 //        type {
-//            name("Typer")
+//            name("GlitchyUtil")
+//            kind { Interface }
 //        }
 //    }
+//    dsl.writeTo(System.out)
 }

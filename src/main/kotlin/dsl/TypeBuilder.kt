@@ -1,27 +1,26 @@
 package dsl
 
 import com.squareup.kotlinpoet.TypeSpec
+import dsl.utils.required
+import dsl.utils.withRequired
 
 class TypeBuilder :
-    Buildable<TypeSpec>,
-    Attributes.Property<TypeSpec.Builder> by Attributes.property(
+    Attributes.Buildable<TypeSpec> by Attributes.buildWith(TypeSpec.Builder::build),
+    Attributes.Property<TypeBuilder, TypeSpec.Builder> by Attributes.property(
         modifiers = TypeSpec.Builder::modifiers,
-        annotations = TypeSpec.Builder::annotationSpecs
+        annotations = TypeSpec.Builder::annotationSpecs,
+        identity = TypeBuilder::identity
     ) {
 
-    private var type: Type? = null
-
-    override val source by lazy {
-        type!!.init(if (type == Type.Selector.Anonymous) "no-op" else name)
-    }
+    override fun identity() = this
+    override val source by withRequired { kind.init(if (kind == Type.Selector.Anonymous) "no-op" else name) }
+    private var kind by required<Type>()
 
     // closure here can be replaced when context selectors become
     // non-experimental
-    fun kind(selector: (Type.Selector) -> Type) {
-        type = selector(Type.Selector)
+    fun kind(selector: Type.Selector.() -> Type) {
+        kind = selector(Type.Selector)
     }
-
-    override fun build() = source.build()
 
 
     @JvmInline
