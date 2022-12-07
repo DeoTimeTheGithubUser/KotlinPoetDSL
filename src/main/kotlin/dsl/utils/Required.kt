@@ -28,12 +28,16 @@ class Required<T>(private var holder: (() -> Any?)? = null) {
 
 
     class Accessor<T>(private val closure: () -> T) {
+        private var value: T? = null
         operator fun getValue(ref: Any, prop: KProperty<*>) =
-            requiredProperties[ref]?.takeIf { it.isNotEmpty() }?.let { error("The required properties ${it.map { it.prop }} need to be initialized before use.") }
-                ?: closure().also { requiredProperties.remove(ref) }
+            value ?: requiredProperties[ref]?.takeIf { it.isNotEmpty() }?.let { error("The required properties ${it.map { it.prop }} need to be initialized before use.") }
+                ?: closure().also {
+                    requiredProperties.remove(ref)
+                    value = it
+                }
     }
 }
 
 fun <T> required() = Required<T>()
-fun <T> Attributes.Identity<*>.requiredByIdentity() = Required<T>(this::identity)
+fun <T> requiredByCozy(cozy: Cozy<*>) = Required<T> { cozy.getValue(null, null) }
 fun <T> withRequired(closure: () -> T) = Required.Accessor(closure)

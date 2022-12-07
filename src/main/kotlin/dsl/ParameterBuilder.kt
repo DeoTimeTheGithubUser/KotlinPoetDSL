@@ -1,21 +1,20 @@
 package dsl
 
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.asTypeName
+import dsl.utils.Cozy
 import dsl.utils.withRequired
-import kotlin.reflect.KClass
 
-class ParameterBuilder :
-    Attributes.Buildable<ParameterSpec> by Attributes.buildWith(ParameterSpec.Builder::build),
-    Attributes.Has.Type by Attributes.typedHolder<ParameterBuilder>(),
+class ParameterBuilder(private val cozy: Cozy<ParameterBuilder> = Cozy()) :
+    Attributes.Cozied<ParameterBuilder>(cozy),
+    Attributes.Sourced<ParameterSpec.Builder>,
+    Attributes.Buildable<ParameterSpec> by Attributes.buildWith(cozy, ParameterSpec.Builder::build),
+    Attributes.Has.Type by Attributes.typedHolder(cozy),
     Attributes.Property<ParameterBuilder, ParameterSpec.Builder> by Attributes.property(
+        cozy = cozy,
         modifiers = ParameterSpec.Builder::modifiers,
         annotations = ParameterSpec.Builder::annotations,
-        identity = ParameterBuilder::identity
     ) {
 
-    override fun identity() = this
     override val source by withRequired { ParameterSpec.builder(name, type) }
 
 }

@@ -1,14 +1,14 @@
 package dsl
 
 import com.squareup.kotlinpoet.CodeBlock
+import dsl.utils.Cozy
 
-class CodeBuilder :
-    Attributes.Buildable<CodeBlock> by Attributes.buildWith(CodeBlock.Builder::build),
-    Attributes.Sourced<CodeBlock.Builder>,
-    Attributes.Identity<CodeBuilder> {
+class CodeBuilder(private val cozy: Cozy<CodeBuilder> = Cozy()) :
+    Attributes.Cozied<CodeBuilder>(cozy),
+    Attributes.Buildable<CodeBlock> by Attributes.buildWith(cozy, CodeBlock.Builder::build),
+    Attributes.Sourced<CodeBlock.Builder> {
 
     override val source = CodeBlock.builder()
-    override fun identity() = this
     operator fun CodeBlock.unaryPlus() {
         source.add(this)
     }

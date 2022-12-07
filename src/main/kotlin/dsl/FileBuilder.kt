@@ -2,20 +2,20 @@ package dsl
 
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.TypeSpec
 import dsl.utils.Assembler
+import dsl.utils.Cozy
 import dsl.utils.buildWith
 import dsl.utils.required
 import dsl.utils.withRequired
 import kotlin.properties.Delegates
 
-class FileBuilder :
-    Attributes.Buildable<FileSpec> by Attributes.buildWith(FileSpec.Builder::build),
+class FileBuilder(private val cozy: Cozy<FileBuilder> = Cozy()) :
+    Attributes.Cozied<FileBuilder>(cozy),
+    Attributes.Buildable<FileSpec> by Attributes.buildWith(cozy, FileSpec.Builder::build),
     Attributes.Sourced<FileSpec.Builder>,
-    Attributes.Identity<FileBuilder>,
-    Attributes.Has.Name by Attributes.nameHolder<FileBuilder>(),
-    Attributes.Has.Annotations by Attributes.annotationVisitor(FileSpec.Builder::annotations) {
-
-    override fun identity() = this
+    Attributes.Has.Name by Attributes.nameHolder(cozy),
+    Attributes.Has.Annotations by Attributes.annotationVisitor(cozy, FileSpec.Builder::annotations) {
 
     private var pack by required<String>()
     override val source by withRequired { FileSpec.builder(pack, name) }

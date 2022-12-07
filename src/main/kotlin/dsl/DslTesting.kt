@@ -11,13 +11,16 @@ import kotlin.reflect.full.staticProperties
 fun main() {
 
 
-//    val dsl = fileBuilder {
-//        name("GlitchyUtil")
-//        inPackage("idk")
-//        type {
-//            name("GlitchyUtil")
-//            kind { Interface }
-//        }
-//    }
-//    dsl.writeTo(System.out)
+    val dsl = fileBuilder {
+        name("GlitchyUtil")
+        inPackage("idk")
+        type {
+            name("GlitchyUtil")
+            kind { Class }
+            function {
+                name("add")
+            }
+        }
+    }
+    dsl.writeTo(System.out)
 }

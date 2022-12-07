@@ -1,16 +1,16 @@
 package dsl
 
 import com.squareup.kotlinpoet.AnnotationSpec
+import dsl.utils.Cozy
 import dsl.utils.withRequired
 
-class AnnotationBuilder :
-    Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(AnnotationSpec.Builder::build),
+class AnnotationBuilder(private val cozy: Cozy<AnnotationBuilder> = Cozy()) :
+    Attributes.Cozied<AnnotationBuilder>(cozy),
     Attributes.Sourced<AnnotationSpec.Builder>,
-    Attributes.Identity<AnnotationBuilder>,
-    Attributes.Has.Code by Attributes.codeAdder(AnnotationSpec.Builder::addMember),
-    Attributes.Has.Type by Attributes.typedHolder<AnnotationBuilder>() {
+    Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build),
+    Attributes.Has.Code by Attributes.codeAdder(cozy, AnnotationSpec.Builder::addMember),
+    Attributes.Has.Type by Attributes.typedHolder(cozy) {
 
     override val source by withRequired { AnnotationSpec.builder(type) }
-    override fun identity() = this
 
 }
