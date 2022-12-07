@@ -1,8 +1,6 @@
 package dsl
 
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.TypeName
-import dsl.utils.bounds
+import dsl.utils.Operator
 import dsl.utils.typeParameter
 
 annotation class NumericalOperation
@@ -17,9 +15,9 @@ fun main() {
             typeParameters {
                 +typeParameter<Number>("T")
             }
-            function("plus") {
+            function {
+                operator(Operator.Plus)
                 returns<Int>()
-                modifiers { +KModifier.OPERATOR }
                 annotation { type<NumericalOperation>() }
                 receiver<Int>()
                 parameter("other") { type<Int>() }

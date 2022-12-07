@@ -1,9 +1,11 @@
 package dsl
 
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import dsl.utils.Assembler
 import dsl.utils.Cozy
+import dsl.utils.Operator
 import dsl.utils.buildWith
 import dsl.utils.withRequired
 import kotlin.reflect.KClass
@@ -27,6 +29,12 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
 
     inline fun parameter(assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().buildWith(assembler)) }
     inline fun parameter(name: String, assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().apply { name(name) }.buildWith(assembler)) }
+
+
+    fun operator(op: Operator) {
+        name(op.name)
+        modifiers { +KModifier.OPERATOR }
+    }
 
     fun returns(type: KClass<*>) { source.returns(type) }
     inline fun <reified T> returns() = returns(T::class)
