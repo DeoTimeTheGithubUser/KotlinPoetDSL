@@ -10,7 +10,6 @@ import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import dsl.utils.Assembler
 import dsl.utils.CollectionAssembler
-import dsl.utils.Cozy
 import dsl.utils.buildCollectionTo
 import dsl.utils.buildWith
 import dsl.utils.requiredByCozy
@@ -184,7 +183,7 @@ interface Attributes {
             }
         }
 
-        internal fun typedHolder(cozy: Cozy<*>): Has.Type = object : Has.Type {
+        internal fun typeHolder(cozy: Cozy<*>): Has.Type = object : Has.Type {
             override var type by requiredByCozy<ClassName>(cozy)
             override fun type(type: ClassName) {
                 this.type = type

@@ -2,7 +2,6 @@ package dsl
 
 import com.squareup.kotlinpoet.AnnotationSpec
 import dsl.utils.Assembler
-import dsl.utils.Cozy
 import dsl.utils.buildWith
 import dsl.utils.withRequired
 
@@ -10,7 +9,7 @@ class AnnotationBuilder(private val cozy: Cozy<AnnotationBuilder> = Cozy()) :
     Attributes.Cozied<AnnotationBuilder>(cozy),
     Attributes.Sourced<AnnotationSpec.Builder>,
     Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build),
-    Attributes.Has.Type by Attributes.typedHolder(cozy) {
+    Attributes.Has.Type by Attributes.typeHolder(cozy) {
 
     override val source by withRequired { AnnotationSpec.builder(type) }
     inline fun member(assembler: Assembler<CodeBuilder>) {

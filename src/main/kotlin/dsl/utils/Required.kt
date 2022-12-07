@@ -1,6 +1,6 @@
 package dsl.utils
 
-import dsl.Attributes
+import dsl.Cozy
 import java.util.IdentityHashMap
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty

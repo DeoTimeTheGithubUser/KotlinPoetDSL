@@ -1,6 +1,8 @@
-package dsl
+package dsl.test
 
-import dsl.utils.Operator
+import dsl.fileBuilder
+import dsl.invoke
+import dsl.type
 import dsl.utils.typeParameter
 
 annotation class NumericalOperation
@@ -16,7 +18,7 @@ fun main() {
                 +typeParameter<Number>("T")
             }
             function {
-                operator(Operator.Plus)
+                operator { Plus }
                 returns<Int>()
                 annotation { type<NumericalOperation>() }
                 receiver<Int>()

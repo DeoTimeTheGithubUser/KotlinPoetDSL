@@ -1,7 +1,6 @@
 package dsl
 
 import com.squareup.kotlinpoet.CodeBlock
-import dsl.utils.Cozy
 
 class CodeBuilder(private val cozy: Cozy<CodeBuilder> = Cozy()) :
     Attributes.Cozied<CodeBuilder>(cozy),

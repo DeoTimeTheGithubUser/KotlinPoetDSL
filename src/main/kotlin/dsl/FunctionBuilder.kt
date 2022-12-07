@@ -2,9 +2,7 @@ package dsl
 
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.TypeSpec
 import dsl.utils.Assembler
-import dsl.utils.Cozy
 import dsl.utils.Operator
 import dsl.utils.buildWith
 import dsl.utils.withRequired

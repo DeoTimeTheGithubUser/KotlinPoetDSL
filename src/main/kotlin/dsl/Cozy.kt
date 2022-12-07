@@ -1,6 +1,5 @@
-package dsl.utils
+package dsl
 
-import dsl.Attributes
 import kotlin.reflect.KProperty
 
 class Cozy<T> {
