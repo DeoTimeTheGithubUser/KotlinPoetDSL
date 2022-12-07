@@ -3,7 +3,6 @@ package dsl
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import dsl.utils.Assembler
-import dsl.utils.Operator
 import dsl.utils.buildWith
 import dsl.utils.withRequired
 import kotlin.reflect.KClass
@@ -66,5 +65,39 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
 
     private fun nameNoOp() {
         name("no-op")
+    }
+
+    @JvmInline
+    value class Operator private constructor(val name: String) {
+        companion object {
+            val Plus = Operator("plus")
+            val Minus = Operator("minus")
+            val Times = Operator("times")
+            val Divide = Operator("divide")
+            val Modulo = Operator("rem")
+
+            val Not = Operator("not")
+
+            val PlusAssign = Operator("plusAssign")
+            val MinusAssign = Operator("minusAssign")
+            val TimesAssign = Operator("timesAssign")
+            val DivideAssign = Operator("divideAssign")
+            val ModuloAssign = Operator("remAssign")
+
+            val UnaryPlus = Operator("unaryPlus")
+            val UnaryMinus = Operator("unaryMinus")
+
+            val Inc = Operator("inc")
+            val Dec = Operator("dec")
+
+            val Get = Operator("get")
+            val Set = Operator("set")
+
+            val Range = Operator("rangeTo")
+            val Contains = Operator("contains")
+            val Invoke = Operator("invoke")
+            val Equals = Operator("equals")
+            val Compare = Operator("compareTo")
+        }
     }
 }

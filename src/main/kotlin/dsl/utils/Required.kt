@@ -6,7 +6,7 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
 private val requiredProperties = IdentityHashMap<Any, MutableList<Required<*>>>()
-class Required<T>(private var holder: (() -> Any?)? = null) {
+internal class Required<T>(private var holder: (() -> Any?)? = null) {
 
     private var prop: KProperty<*> by Delegates.notNull()
     private var value: T? = null
@@ -38,6 +38,6 @@ class Required<T>(private var holder: (() -> Any?)? = null) {
     }
 }
 
-fun <T> required() = Required<T>()
-fun <T> requiredByCozy(cozy: Cozy<*>) = Required<T> { cozy.getValue(null, null) }
-fun <T> withRequired(closure: () -> T) = Required.Accessor(closure)
+internal fun <T> required() = Required<T>()
+internal fun <T> requiredByCozy(cozy: Cozy<*>) = Required<T> { cozy.getValue(null, null) }
+internal fun <T> withRequired(closure: () -> T) = Required.Accessor(closure)
