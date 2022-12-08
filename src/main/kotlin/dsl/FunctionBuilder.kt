@@ -2,6 +2,9 @@ package dsl
 
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.jvm.jvmStatic
 import dsl.utils.Assembler
 import dsl.utils.buildWith
@@ -64,17 +67,13 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         modifiers { +KModifier.OPERATOR }
     }
 
-    fun returns(type: KClass<*>) {
-        source.returns(type)
-    }
-
+    fun returns(type: TypeName) { source.returns(type) }
+    fun returns(type: KClass<*>) = returns(type.asTypeName())
     inline fun <reified T> returns() = returns(T::class)
 
-    fun receiver(type: KClass<*>) {
-        source.receiver(type)
-    }
-
-    inline fun <reified T> receiver() = returns(T::class)
+    fun receiver(type: TypeName) { source.receiver(type) }
+    fun receiver(type: KClass<*>) = receiver(type.asTypeName())
+    inline fun <reified T> receiver() = receiver(T::class)
 
     private fun nameNoOp() {
         name("no-op")

@@ -1,16 +1,20 @@
 package dsl
 
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.asClassName
 import dsl.utils.Assembler
 import dsl.utils.buildWith
+import dsl.utils.required
 import dsl.utils.withRequired
 
 class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBuilder>) :
     Attributes.Sourced<AnnotationSpec.Builder>,
-    Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build),
-    Attributes.Has.Type by Attributes.typeHolder(cozy) {
+    Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build) {
 
+    private var type by required<ClassName>()
     override val source by withRequired { AnnotationSpec.builder(type) }
+
     inline fun member(assembler: Assembler<CodeBuilder>) {
         source.addMember(CodeBuilder.cozy().buildWith(assembler))
     }
@@ -18,6 +22,9 @@ class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBui
     fun target(selector: Target.Companion.() -> Target) {
         source.useSiteTarget(selector(Target.Companion).source)
     }
+
+    fun type(type: ClassName) { this.type = type }
+    inline fun <reified T> type() = type(T::class.asClassName())
 
     @JvmInline
     value class Target private constructor(internal val source: AnnotationSpec.UseSiteTarget) {

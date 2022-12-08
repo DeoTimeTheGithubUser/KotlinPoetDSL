@@ -15,5 +15,5 @@ class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
     companion object Initializer : Cozy.Initializer<CodeBuilder>(::CodeBuilder)
 }
 
-operator fun String.invoke(vararg args: Any?) = CodeBlock.of(this, args)
+operator fun String.invoke(vararg args: Any?) = CodeBlock.of(this, *args)
 

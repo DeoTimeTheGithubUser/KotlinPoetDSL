@@ -1,28 +1,41 @@
 package dsl.test
 
+import dsl.invoke
 import dsl.kotlin
+import dsl.type
+import dsl.utils.typeParameter
 
 
 fun main() {
-
-//    val dsl = fileBuilder {
+//
+//    val dsl = kotlin {
 //        name("Calculator") packaged "idk"
+//
+//        val typeParam = typeParameter<Number>("T")
 //        type("Calculator") {
 //            kind { Class }
-//            typeParameters {
-//                +typeParameter<Number>("T")
+//            property {
+//                name("glitch")
+//                type<String>()
+//                initializer {
+//                    +"%T().toString()"(Any::class)
+//                }
 //            }
-//            function {
+//            typeParameters {
+//                +typeParam
+//            }
+//            function("asdf") {
 //                operator { Plus }
-//                returns<Int>()
-//                annotation { type<NumericalOperation>() }
-//                receiver<Int>()
-//                parameter("other") { type<Int>() }
+//                receiver(typeParam)
+//                returns(typeParam)
+//                parameter("other") { type(typeParam) }
 //                comment("This function will add two integers")
 //                comment("together, and then return that value.")
 //                code {
-//                    +"return this + other"()
+//                    +"return this + other"
 //                }
+//
+//
 //            }
 //        }
 //    }

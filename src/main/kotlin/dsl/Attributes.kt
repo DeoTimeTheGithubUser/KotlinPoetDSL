@@ -7,6 +7,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import dsl.utils.Assembler
@@ -48,9 +49,8 @@ interface Attributes {
         }
 
         interface Type : Has {
-            val type: ClassName
-            fun type(type: ClassName)
-            fun type(type: ParameterizedTypeName) = type(type.rawType)
+            val type: TypeName
+            fun type(type: TypeName)
             fun type(type: KClass<*>) = type(type.asTypeName())
 
             fun interface Parameters : Has {
@@ -125,15 +125,24 @@ interface Attributes {
                 }
             }
 
+
+
         internal fun <S> propertiesVisitor(
             cozy: SourcedCozy<S>,
             holder: (S) -> MutableCollection<Any> // some weird stuff in certain specs
         ): Has.Properties =
             object : Has.Properties, Sourced<S> by sourcedByCozy(cozy) {
                 override fun property(assembler: Assembler<PropertyBuilder>) {
+
                     holder(source).add(PropertyBuilder.cozy().buildWith(assembler))
                 }
             }
+
+        @JvmName("propertyVisitor_typed")
+        internal fun <S> propertiesVisitor(
+            cozy: SourcedCozy<S>,
+            holder: (S) -> MutableCollection<PropertySpec> // some weird stuff in certain specs
+        ) = propertiesVisitor(cozy, holder as ((S) -> MutableCollection<Any>))
 
         internal fun <S, B> buildWith(cozy: SourcedCozy<S>, holder: (S) -> B): Buildable<B> =
             object : Buildable<B>, Sourced<S> by sourcedByCozy(cozy) {
@@ -195,8 +204,8 @@ interface Attributes {
         }
 
         internal fun typeHolder(cozy: Cozy<*>): Has.Type = object : Has.Type {
-            override var type by requiredByCozy<ClassName>(cozy)
-            override fun type(type: ClassName) {
+            override var type by requiredByCozy<TypeName>(cozy)
+            override fun type(type: TypeName) {
                 this.type = type
             }
         }
