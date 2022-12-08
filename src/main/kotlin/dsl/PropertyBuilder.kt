@@ -7,8 +7,7 @@ import dsl.utils.Assembler
 import dsl.utils.buildWith
 import dsl.utils.withRequired
 
-class PropertyBuilder(private val cozy: Cozy<PropertyBuilder> = Cozy()) :
-    Attributes.Cozied<PropertyBuilder>(cozy),
+class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder>) :
     Attributes.Sourced<PropertySpec.Builder>,
     Attributes.Buildable<PropertySpec> by Attributes.buildWith(cozy, PropertySpec.Builder::build),
     Attributes.Has.Type by Attributes.typeHolder(cozy),
@@ -38,18 +37,20 @@ class PropertyBuilder(private val cozy: Cozy<PropertyBuilder> = Cozy()) :
     }
 
     fun initializer(assembler: Assembler<CodeBuilder>) {
-        source.initializer(CodeBuilder().buildWith(assembler))
+        source.initializer(CodeBuilder.cozy().buildWith(assembler))
     }
 
     fun delegate(assembler: Assembler<CodeBuilder>) {
-        source.delegate(CodeBuilder().buildWith(assembler))
+        source.delegate(CodeBuilder.cozy().buildWith(assembler))
     }
 
     fun getter(assembler: Assembler<FunctionBuilder>) {
-        source.getter(FunctionBuilder().apply { getter() }.buildWith(assembler))
+        source.getter(FunctionBuilder.cozy().apply { getter() }.buildWith(assembler))
     }
 
     fun setter(assembler: Assembler<FunctionBuilder>) {
-        source.setter(FunctionBuilder().apply { setter() }.buildWith(assembler))
+        source.setter(FunctionBuilder.cozy().apply { setter() }.buildWith(assembler))
     }
+
+    companion object Initializer : Cozy.Initializer<PropertyBuilder>(::PropertyBuilder)
 }

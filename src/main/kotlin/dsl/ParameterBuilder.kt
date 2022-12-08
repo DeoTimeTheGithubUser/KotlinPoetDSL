@@ -5,8 +5,7 @@ import dsl.utils.Assembler
 import dsl.utils.buildWith
 import dsl.utils.withRequired
 
-class ParameterBuilder(private val cozy: Cozy<ParameterBuilder> = Cozy()) :
-    Attributes.Cozied<ParameterBuilder>(cozy),
+class ParameterBuilder private constructor(private val cozy: Cozy<ParameterBuilder>) :
     Attributes.Sourced<ParameterSpec.Builder>,
     Attributes.Buildable<ParameterSpec> by Attributes.buildWith(cozy, ParameterSpec.Builder::build),
     Attributes.Has.Type by Attributes.typeHolder(cozy),
@@ -20,6 +19,8 @@ class ParameterBuilder(private val cozy: Cozy<ParameterBuilder> = Cozy()) :
     override val source by withRequired { ParameterSpec.builder(name, type) }
 
     fun default(assembler: Assembler<CodeBuilder>) {
-        source.defaultValue(CodeBuilder().buildWith(assembler))
+        source.defaultValue(CodeBuilder.cozy().buildWith(assembler))
     }
+
+    companion object Initializer : Cozy.Initializer<ParameterBuilder>(::ParameterBuilder)
 }

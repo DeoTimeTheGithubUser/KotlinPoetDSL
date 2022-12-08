@@ -6,6 +6,7 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
 private val requiredProperties = IdentityHashMap<Any, MutableList<Required<*>>>()
+
 internal class Required<T>(private var holder: (() -> Any?)? = null) {
 
     private var prop: KProperty<*> by Delegates.notNull()
@@ -30,11 +31,12 @@ internal class Required<T>(private var holder: (() -> Any?)? = null) {
     class Accessor<T>(private val closure: () -> T) {
         private var value: T? = null
         operator fun getValue(ref: Any, prop: KProperty<*>) =
-            value ?: requiredProperties[ref]?.takeIf { it.isNotEmpty() }?.let { error("The required properties ${it.map { it.prop }} need to be initialized before use.") }
-                ?: closure().also {
-                    requiredProperties.remove(ref)
-                    value = it
-                }
+            value ?: requiredProperties[ref]?.takeIf { it.isNotEmpty() }
+                ?.let { error("The required properties ${it.map { it.prop }} need to be initialized before use.") }
+            ?: closure().also {
+                requiredProperties.remove(ref)
+                value = it
+            }
     }
 }
 

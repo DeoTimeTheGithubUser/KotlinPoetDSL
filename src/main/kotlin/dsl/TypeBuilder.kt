@@ -7,8 +7,7 @@ import dsl.utils.required
 import dsl.utils.withRequired
 import kotlin.reflect.KClass
 
-class TypeBuilder(private val cozy: Cozy<TypeBuilder> = Cozy()) :
-    Attributes.Cozied<TypeBuilder>(cozy),
+class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
     Attributes.Sourced<TypeSpec.Builder>,
     Attributes.Buildable<TypeSpec> by Attributes.buildWith(cozy, TypeSpec.Builder::build),
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, TypeSpec.Builder::addFunction),
@@ -35,10 +34,13 @@ class TypeBuilder(private val cozy: Cozy<TypeBuilder> = Cozy()) :
     }
 
     fun initializer(assembler: Assembler<CodeBuilder>) {
-        source.addInitializerBlock(CodeBuilder().buildWith(assembler))
+        source.addInitializerBlock(CodeBuilder.cozy().buildWith(assembler))
     }
 
-    fun inherit(vararg types: KClass<*>) { types.forEach(source::superclass) }
+    fun inherit(vararg types: KClass<*>) {
+        types.forEach(source::superclass)
+    }
+
     inline fun <reified T> inherit() = inherit(T::class)
 
     @JvmInline
@@ -54,5 +56,7 @@ class TypeBuilder(private val cozy: Cozy<TypeBuilder> = Cozy()) :
             val Functional = Type(TypeSpec.Companion::funInterfaceBuilder)
         }
     }
+
+    companion object Initializer : Cozy.Initializer<TypeBuilder>(::TypeBuilder)
 
 }

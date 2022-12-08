@@ -7,8 +7,7 @@ import dsl.utils.buildWith
 import dsl.utils.withRequired
 import kotlin.reflect.KClass
 
-class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
-    Attributes.Cozied<FunctionBuilder>(cozy),
+class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder>) :
     Attributes.Sourced<FunSpec.Builder>,
     Attributes.Buildable<FunSpec> by Attributes.buildWith(cozy, FunSpec.Builder::build),
     Attributes.Body by Attributes.body(
@@ -26,6 +25,7 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
     override val source by withRequired { model.builder(name) }
 
     private var model = Model.Normal
+
     private enum class Model(val builder: (String) -> FunSpec.Builder) {
         Normal(FunSpec.Companion::builder),
         Constructor({ FunSpec.constructorBuilder() }),
@@ -48,8 +48,13 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
         model = Model.Setter
     }
 
-    inline fun parameter(assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().buildWith(assembler)) }
-    inline fun parameter(name: String, assembler: Assembler<ParameterBuilder>) { source.addParameter(ParameterBuilder().apply { name(name) }.buildWith(assembler)) }
+    inline fun parameter(assembler: Assembler<ParameterBuilder>) {
+        source.addParameter(ParameterBuilder.cozy().buildWith(assembler))
+    }
+
+    inline fun parameter(name: String, assembler: Assembler<ParameterBuilder>) {
+        source.addParameter(ParameterBuilder.cozy().apply { name(name) }.buildWith(assembler))
+    }
 
 
     fun operator(op: Operator.Companion.() -> Operator) {
@@ -57,15 +62,23 @@ class FunctionBuilder(private val cozy: Cozy<FunctionBuilder> = Cozy()) :
         modifiers { +KModifier.OPERATOR }
     }
 
-    fun returns(type: KClass<*>) { source.returns(type) }
+    fun returns(type: KClass<*>) {
+        source.returns(type)
+    }
+
     inline fun <reified T> returns() = returns(T::class)
 
-    fun receiver(type: KClass<*>) { source.receiver(type) }
+    fun receiver(type: KClass<*>) {
+        source.receiver(type)
+    }
+
     inline fun <reified T> receiver() = returns(T::class)
 
     private fun nameNoOp() {
         name("no-op")
     }
+
+    companion object Initializer : Cozy.Initializer<FunctionBuilder>(::FunctionBuilder)
 
     @JvmInline
     value class Operator private constructor(val name: String) {

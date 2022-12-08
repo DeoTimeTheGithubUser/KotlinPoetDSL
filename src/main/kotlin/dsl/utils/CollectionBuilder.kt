@@ -7,11 +7,15 @@ interface CollectionBuilder<T> {
 
 typealias CollectionAssembler<T> = Assembler<CollectionBuilder<T>>
 
-internal inline fun <T, C : MutableCollection<T>> buildCollectionTo(col: C, assembler: Assembler<CollectionBuilder<T>>): C {
+inline fun <T, C : MutableCollection<T>> buildCollectionTo(
+    col: C,
+    assembler: Assembler<CollectionBuilder<T>>
+): C {
     object : CollectionBuilder<T> {
         override fun T.unaryPlus() {
             col += this
         }
+
         override fun T.unaryMinus() {
             col -= this
         }

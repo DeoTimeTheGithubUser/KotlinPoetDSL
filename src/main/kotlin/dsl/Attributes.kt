@@ -21,12 +21,6 @@ interface Attributes {
         val source: S
     }
 
-    abstract class Cozied<T>(cozy: Cozy<T>) {
-        init {
-            cozy(this)
-        }
-    }
-
     fun interface Buildable<T> : Attributes {
         fun build(): T
     }
@@ -121,7 +115,7 @@ interface Attributes {
         ): Has.Annotations =
             object : Has.Annotations, Sourced<S> by sourcedByCozy(cozy) {
                 override fun annotation(assembler: Assembler<AnnotationBuilder>) {
-                    holder(source).add(AnnotationBuilder().buildWith(assembler))
+                    holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
                 }
             }
 
@@ -133,7 +127,7 @@ interface Attributes {
         internal fun <S> codeVisitor(cozy: SourcedCozy<S>, visitor: (S, CodeBlock) -> Unit): Has.Code =
             object : Has.Code, Sourced<S> by sourcedByCozy(cozy) {
                 override fun code(assembler: Assembler<CodeBuilder>) {
-                    visitor(source, CodeBuilder().buildWith(assembler))
+                    visitor(source, CodeBuilder.cozy().buildWith(assembler))
                 }
 
                 override fun code(format: String, vararg args: Any?) {
@@ -147,7 +141,7 @@ interface Attributes {
         ): Has.Documentation =
             object : Has.Documentation, Sourced<S> by sourcedByCozy(cozy) {
                 override fun documentation(assembler: Assembler<CodeBuilder>) {
-                    visitor(source, CodeBuilder().buildWith(assembler))
+                    visitor(source, CodeBuilder.cozy().buildWith(assembler))
                 }
 
                 override fun documentation(format: String, vararg args: Any) {
@@ -168,11 +162,11 @@ interface Attributes {
         internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S, FunSpec) -> Unit): Has.Functions =
             object : Has.Functions, Sourced<S> by sourcedByCozy(cozy) {
                 override fun function(assembler: Assembler<FunctionBuilder>) {
-                    visitor(source, FunctionBuilder().buildWith(assembler))
+                    visitor(source, FunctionBuilder.cozy().buildWith(assembler))
                 }
 
                 override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
-                    visitor(source, FunctionBuilder().apply { name(name) }.buildWith(assembler))
+                    visitor(source, FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler))
                 }
             }
 

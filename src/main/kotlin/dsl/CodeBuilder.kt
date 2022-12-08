@@ -2,8 +2,7 @@ package dsl
 
 import com.squareup.kotlinpoet.CodeBlock
 
-class CodeBuilder(private val cozy: Cozy<CodeBuilder> = Cozy()) :
-    Attributes.Cozied<CodeBuilder>(cozy),
+class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
     Attributes.Buildable<CodeBlock> by Attributes.buildWith(cozy, CodeBlock.Builder::build),
     Attributes.Sourced<CodeBlock.Builder> {
 
@@ -12,6 +11,7 @@ class CodeBuilder(private val cozy: Cozy<CodeBuilder> = Cozy()) :
         source.add(this)
     }
 
+    companion object Initializer : Cozy.Initializer<CodeBuilder>(::CodeBuilder)
 }
 
 operator fun String.invoke(vararg args: Any?) = CodeBlock.of(this, args)

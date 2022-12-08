@@ -5,16 +5,16 @@ import dsl.utils.Assembler
 import dsl.utils.buildWith
 import dsl.utils.withRequired
 
-class AnnotationBuilder(private val cozy: Cozy<AnnotationBuilder> = Cozy()) :
-    Attributes.Cozied<AnnotationBuilder>(cozy),
+class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBuilder>) :
     Attributes.Sourced<AnnotationSpec.Builder>,
     Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build),
     Attributes.Has.Type by Attributes.typeHolder(cozy) {
 
     override val source by withRequired { AnnotationSpec.builder(type) }
     inline fun member(assembler: Assembler<CodeBuilder>) {
-        source.addMember(CodeBuilder().buildWith(assembler))
+        source.addMember(CodeBuilder.cozy().buildWith(assembler))
     }
+
     fun target(selector: Target.Companion.() -> Target) {
         source.useSiteTarget(selector(Target.Companion).source)
     }
@@ -40,5 +40,7 @@ class AnnotationBuilder(private val cozy: Cozy<AnnotationBuilder> = Cozy()) :
 
         }
     }
+
+    companion object Initializer : Cozy.Initializer<AnnotationBuilder>(::AnnotationBuilder)
 
 }
