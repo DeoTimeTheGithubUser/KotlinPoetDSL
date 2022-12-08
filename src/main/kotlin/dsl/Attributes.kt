@@ -6,10 +6,12 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import dsl.utils.Assembler
 import dsl.utils.CollectionAssembler
+import dsl.utils.Uses
 import dsl.utils.buildCollectionTo
 import dsl.utils.buildWith
 import dsl.utils.requiredByCozy
@@ -42,7 +44,7 @@ interface Attributes {
 
         interface Name : Has {
             val name: String
-            fun name(name: String)
+            fun name(name: String): Uses.Name
         }
 
         interface Type : Has {
@@ -64,6 +66,10 @@ interface Attributes {
         interface Functions : Has {
             fun function(assembler: Assembler<FunctionBuilder>)
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
+        }
+
+        interface Properties : Has {
+            fun property(assembler: Assembler<PropertyBuilder>)
         }
 
         interface Code : Has {
@@ -116,6 +122,16 @@ interface Attributes {
             object : Has.Annotations, Sourced<S> by sourcedByCozy(cozy) {
                 override fun annotation(assembler: Assembler<AnnotationBuilder>) {
                     holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
+                }
+            }
+
+        internal fun <S> propertiesVisitor(
+            cozy: SourcedCozy<S>,
+            holder: (S) -> MutableCollection<Any> // some weird stuff in certain specs
+        ): Has.Properties =
+            object : Has.Properties, Sourced<S> by sourcedByCozy(cozy) {
+                override fun property(assembler: Assembler<PropertyBuilder>) {
+                    holder(source).add(PropertyBuilder.cozy().buildWith(assembler))
                 }
             }
 
@@ -172,8 +188,9 @@ interface Attributes {
 
         internal fun nameHolder(cozy: Cozy<*>): Has.Name = object : Has.Name {
             override var name by requiredByCozy<String>(cozy)
-            override fun name(name: String) {
+            override fun name(name: String): Uses.Name {
                 this.name = name
+                return Uses.Name
             }
         }
 

@@ -1,14 +1,9 @@
 package dsl.test
 
-import dsl.fileBuilder
-import dsl.invoke
-import dsl.type
-import dsl.utils.typeParameter
+import dsl.kotlin
 
-annotation class NumericalOperation
 
 fun main() {
-
 
 //    val dsl = fileBuilder {
 //        name("Calculator") packaged "idk"

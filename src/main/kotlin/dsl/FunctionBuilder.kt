@@ -2,9 +2,11 @@ package dsl
 
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.jvm.jvmStatic
 import dsl.utils.Assembler
 import dsl.utils.buildWith
 import dsl.utils.withRequired
+import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 
 class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder>) :

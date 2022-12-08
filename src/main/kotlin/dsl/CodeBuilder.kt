@@ -11,6 +11,7 @@ class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
         source.add(this)
     }
 
+    operator fun String.unaryPlus() = +this()
     companion object Initializer : Cozy.Initializer<CodeBuilder>(::CodeBuilder)
 }
 
