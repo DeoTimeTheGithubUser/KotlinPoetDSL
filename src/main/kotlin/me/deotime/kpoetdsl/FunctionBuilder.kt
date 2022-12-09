@@ -1,4 +1,4 @@
-package dsl
+package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -6,9 +6,9 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.jvm.jvmStatic
-import dsl.utils.Assembler
-import dsl.utils.buildWith
-import dsl.utils.withRequired
+import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.withRequired
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 
@@ -63,7 +63,7 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
 
 
     fun operator(op: Operator.Companion.() -> Operator) {
-        name(op(Operator.Companion).name)
+        name(op(Operator).name)
         modifiers { +KModifier.OPERATOR }
     }
 

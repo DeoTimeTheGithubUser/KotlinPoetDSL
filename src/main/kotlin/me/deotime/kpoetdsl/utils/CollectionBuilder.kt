@@ -1,4 +1,4 @@
-package dsl.utils
+package me.deotime.kpoetdsl.utils
 
 interface CollectionBuilder<T> {
     operator fun T.unaryPlus()

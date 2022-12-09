@@ -1,10 +1,11 @@
-package dsl
+package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.TypeSpec
-import dsl.utils.Assembler
-import dsl.utils.buildWith
-import dsl.utils.required
-import dsl.utils.withRequired
+import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.required
+import me.deotime.kpoetdsl.utils.withRequired
+import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :

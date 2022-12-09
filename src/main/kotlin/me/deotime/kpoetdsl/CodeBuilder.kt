@@ -1,4 +1,4 @@
-package dsl
+package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.CodeBlock
 

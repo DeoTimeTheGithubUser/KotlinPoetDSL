@@ -1,9 +1,9 @@
-package dsl
+package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.ParameterSpec
-import dsl.utils.Assembler
-import dsl.utils.buildWith
-import dsl.utils.withRequired
+import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.withRequired
 
 class ParameterBuilder private constructor(private val cozy: Cozy<ParameterBuilder>) :
     Attributes.Sourced<ParameterSpec.Builder>,

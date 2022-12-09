@@ -1,4 +1,4 @@
-package dsl
+package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
@@ -10,12 +10,12 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
-import dsl.utils.Assembler
-import dsl.utils.CollectionAssembler
-import dsl.utils.Uses
-import dsl.utils.buildCollectionTo
-import dsl.utils.buildWith
-import dsl.utils.requiredByCozy
+import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.CollectionAssembler
+import me.deotime.kpoetdsl.utils.Uses
+import me.deotime.kpoetdsl.utils.buildCollectionTo
+import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.requiredByCozy
 import kotlin.reflect.KClass
 
 interface Attributes {

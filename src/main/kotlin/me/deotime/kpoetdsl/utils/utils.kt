@@ -1,6 +1,6 @@
-package dsl.utils
+package me.deotime.kpoetdsl.utils
 
-import dsl.Attributes
+import me.deotime.kpoetdsl.Attributes
 
 typealias Assembler<T> = T.() -> Unit
 

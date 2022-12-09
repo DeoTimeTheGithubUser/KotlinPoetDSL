@@ -1,4 +1,4 @@
-package dsl.utils
+package me.deotime.kpoetdsl.utils
 
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName

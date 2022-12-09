@@ -1,6 +1,6 @@
-package dsl.utils
+package me.deotime.kpoetdsl.utils
 
-import dsl.Cozy
+import me.deotime.kpoetdsl.Cozy
 import java.util.IdentityHashMap
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty

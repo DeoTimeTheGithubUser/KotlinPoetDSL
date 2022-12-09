@@ -1,12 +1,12 @@
-package dsl
+package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
-import dsl.utils.Assembler
-import dsl.utils.buildWith
-import dsl.utils.required
-import dsl.utils.withRequired
+import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.required
+import me.deotime.kpoetdsl.utils.withRequired
 
 class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBuilder>) :
     Attributes.Sourced<AnnotationSpec.Builder>,
@@ -20,10 +20,13 @@ class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBui
     }
 
     fun target(selector: Target.Companion.() -> Target) {
-        source.useSiteTarget(selector(Target.Companion).source)
+        source.useSiteTarget(selector(Target).source)
     }
 
-    fun type(type: ClassName) { this.type = type }
+    fun type(type: ClassName) {
+        this.type = type
+    }
+
     inline fun <reified T> type() = type(T::class.asClassName())
 
     @JvmInline

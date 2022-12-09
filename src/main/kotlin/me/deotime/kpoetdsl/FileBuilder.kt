@@ -1,11 +1,11 @@
-package dsl
+package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.FileSpec
-import dsl.utils.Assembler
-import dsl.utils.Uses
-import dsl.utils.buildWith
-import dsl.utils.required
-import dsl.utils.withRequired
+import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.Uses
+import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.required
+import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
 
 class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
