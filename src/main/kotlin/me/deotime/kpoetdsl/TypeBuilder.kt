@@ -1,6 +1,8 @@
 package me.deotime.kpoetdsl
 
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.buildWith
 import me.deotime.kpoetdsl.utils.required
@@ -43,7 +45,21 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
         types.forEach(source::superclass)
     }
 
+    fun inherit(vararg types: TypeName) {
+        types.forEach(source::superclass)
+    }
+
     inline fun <reified T> inherit() = inherit(T::class)
+
+    fun implement(vararg interfaces: TypeName) {
+        interfaces.forEach(source::addSuperinterface)
+    }
+
+    fun implement(vararg interfaces: KClass<*>) {
+        interfaces.forEach(source::addSuperinterface)
+    }
+
+    inline fun <reified T> implement() = implement(T::class.asTypeName())
 
     @JvmInline
     value class Type private constructor(val init: (String) -> TypeSpec.Builder) {
