@@ -70,6 +70,7 @@ interface Attributes {
 
         interface Properties : Has {
             fun property(assembler: Assembler<PropertyBuilder>)
+            fun property(name: String, assembler: Assembler<PropertyBuilder>)
         }
 
         interface Code : Has {
@@ -133,8 +134,11 @@ interface Attributes {
         ): Has.Properties =
             object : Has.Properties, Sourced<S> by sourcedByCozy(cozy) {
                 override fun property(assembler: Assembler<PropertyBuilder>) {
-
                     holder(source).add(PropertyBuilder.cozy().buildWith(assembler))
+                }
+
+                override fun property(name: String, assembler: Assembler<PropertyBuilder>) {
+                    holder(source).add(PropertyBuilder.cozy().apply { name(name) }.buildWith(assembler))
                 }
             }
 
