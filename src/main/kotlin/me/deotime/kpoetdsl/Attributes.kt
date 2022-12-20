@@ -156,7 +156,7 @@ interface Attributes {
                 }
 
                 override fun code(format: String, vararg args: Any?) {
-                    visitor(source, CodeBlock.of(format, args))
+                    visitor(source, CodeBlock.of(format, *args))
                 }
             }
 
