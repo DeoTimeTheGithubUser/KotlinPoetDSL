@@ -26,11 +26,17 @@ tasks.withType<KotlinCompile> {
 publishing {
     publications {
         create<MavenPublication>("maven") {
+
+            groupId = "me.deotime"
+            artifactId = "kotlin-poet-dsl"
+            version = "1.0.2"
+
             from(components["java"])
+
+            pom {
+                name.set("kotlin-poet-dsl")
+                description.set("DSL wrapper for the KotlinPoet library.")
+            }
         }
     }
-}
-
-application {
-    mainClass.set("MainKt")
 }
