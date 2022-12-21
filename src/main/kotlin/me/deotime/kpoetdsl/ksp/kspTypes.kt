@@ -1,5 +1,6 @@
 package me.deotime.kpoetdsl.ksp
 
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.Variance
@@ -9,10 +10,12 @@ import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 
+@KspExperimental
 fun KSType.asTypeName(): TypeName = declaration.className.parameterizedBy(
     arguments.map { it.asTypeVariableName() }
 ).copy(nullable = isMarkedNullable)
 
+@KspExperimental
 fun KSTypeArgument.asTypeVariableName(): TypeName =
     if (variance == Variance.STAR) STAR
     else TypeVariableName(
