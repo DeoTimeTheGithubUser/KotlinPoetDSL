@@ -17,6 +17,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.22")
     implementation("com.squareup:kotlinpoet:1.12.0")
+    implementation("com.google.devtools.ksp:symbol-processing-api:1.7.22-1.0.8")
 }
 
 tasks.withType<KotlinCompile> {

@@ -12,7 +12,7 @@ import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
 
 class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
-    Attributes.Buildable<FileSpec> by Attributes.buildWith(cozy, FileSpec.Builder::build),
+    Attributes.Buildable<KotlinCode>,
     Attributes.Sourced<FileSpec.Builder>,
     Attributes.Has.Name by Attributes.nameHolder(cozy),
     Attributes.Has.Properties by Attributes.propertiesVisitor(cozy, FileSpec.Builder::members),
@@ -45,6 +45,8 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     }
 
     inline fun <reified T> import() = import(T::class)
+
+    override fun build() = KotlinCode(source.build())
 
     companion object Initializer : Cozy.Initializer<FileBuilder>(::FileBuilder)
 }

@@ -216,7 +216,7 @@ interface Attributes {
         ): Has.Comments =
             object : Has.Comments, Sourced<S> by sourcedByCozy(cozy) {
                 override fun comment(format: String, vararg args: Any) {
-                    visitor(source, format, args)
+                    visitor(source, "$format\n", args)
                 }
             }
 
@@ -240,7 +240,7 @@ interface Attributes {
                 }
             }
 
-        internal fun typeHolder(cozy: Cozy<Required.Holder>): Has.Type =
+        internal fun typeHolder(cozy: Cozy<out Required.Holder>): Has.Type =
             object : Has.Type, Required.Holder by requiredHolder() {
                 override var type by requiredByCozy<TypeName>(cozy)
                 override fun type(type: TypeName) {
