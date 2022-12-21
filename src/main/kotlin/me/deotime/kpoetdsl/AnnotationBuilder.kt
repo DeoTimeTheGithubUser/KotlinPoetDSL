@@ -4,13 +4,16 @@ import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
 import me.deotime.kpoetdsl.utils.required
+import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 
 class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBuilder>) :
     Attributes.Sourced<AnnotationSpec.Builder>,
-    Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build) {
+    Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build),
+    Required.Holder by requiredHolder() {
 
     private var type by required<ClassName>()
     override val source by withRequired { AnnotationSpec.builder(type) }

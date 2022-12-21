@@ -1,22 +1,25 @@
 package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.AnnotationSpec
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
+import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.CollectionAssembler
+import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
 import me.deotime.kpoetdsl.utils.buildCollectionTo
 import me.deotime.kpoetdsl.utils.buildWith
 import me.deotime.kpoetdsl.utils.requiredByCozy
+import me.deotime.kpoetdsl.utils.requiredHolder
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 interface Attributes {
 
@@ -40,6 +43,7 @@ interface Attributes {
 
     interface Has : Attributes {
         interface Modifiers : Has {
+            fun modifiers(vararg modifiers: KModifier)
             fun modifiers(assembler: CollectionAssembler<KModifier>)
         }
 
@@ -51,16 +55,29 @@ interface Attributes {
         interface Type : Has {
             val type: TypeName
             fun type(type: TypeName)
+            fun type(type: KType) = type(type.asTypeName())
             fun type(type: KClass<*>) = type(type.asTypeName())
 
             fun interface Parameters : Has {
                 fun typeParameters(builder: CollectionAssembler<TypeVariableName>)
+            }
+
+            companion object {
+                inline fun <reified T> Attributes.Has.Type.type() = type(typeOf<T>())
             }
         }
 
 
         interface Annotations : Has {
             fun annotation(assembler: Assembler<AnnotationBuilder>)
+
+            companion object {
+                inline fun <reified T> Annotations.annotation(noinline assembler: Assembler<AnnotationBuilder>? = null) =
+                    annotation {
+                        type<T>()
+                        assembler?.invoke(this)
+                    }
+            }
         }
 
         interface Functions : Has {
@@ -71,6 +88,18 @@ interface Attributes {
         interface Properties : Has {
             fun property(assembler: Assembler<PropertyBuilder>)
             fun property(name: String, assembler: Assembler<PropertyBuilder>)
+
+            companion object {
+                inline fun <reified T> Properties.property(
+                    name: String,
+                    overload: Nothing? = null,
+                    crossinline assembler: Assembler<PropertyBuilder>
+                ) =
+                    property(name) {
+                        type<T>()
+                        assembler()
+                    }
+            }
         }
 
         interface Code : Has {
@@ -104,6 +133,10 @@ interface Attributes {
                 override fun modifiers(assembler: CollectionAssembler<KModifier>) {
                     buildCollectionTo(holder(source), assembler)
                 }
+
+                override fun modifiers(vararg modifiers: KModifier) {
+                    holder(source) += modifiers
+                }
             }
 
         internal fun <S> parameterizedTypeVisitor(
@@ -125,7 +158,6 @@ interface Attributes {
                     holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
                 }
             }
-
 
 
         internal fun <S> propertiesVisitor(
@@ -174,7 +206,7 @@ interface Attributes {
                 }
 
                 override fun documentation(format: String, vararg args: Any) {
-                    visitor(source, CodeBlock.of(format, args))
+                    visitor(source, CodeBlock.of(format, *args))
                 }
             }
 
@@ -199,20 +231,22 @@ interface Attributes {
                 }
             }
 
-        internal fun nameHolder(cozy: Cozy<*>): Has.Name = object : Has.Name {
-            override var name by requiredByCozy<String>(cozy)
-            override fun name(name: String): Uses.Name {
-                this.name = name
-                return Uses.Name
+        internal fun nameHolder(cozy: Cozy<out Required.Holder>): Has.Name =
+            object : Has.Name, Required.Holder by requiredHolder() {
+                override var name by requiredByCozy<String>(cozy)
+                override fun name(name: String): Uses.Name {
+                    this.name = name
+                    return Uses.Name
+                }
             }
-        }
 
-        internal fun typeHolder(cozy: Cozy<*>): Has.Type = object : Has.Type {
-            override var type by requiredByCozy<TypeName>(cozy)
-            override fun type(type: TypeName) {
-                this.type = type
+        internal fun typeHolder(cozy: Cozy<Required.Holder>): Has.Type =
+            object : Has.Type, Required.Holder by requiredHolder() {
+                override var type by requiredByCozy<TypeName>(cozy)
+                override fun type(type: TypeName) {
+                    this.type = type
+                }
             }
-        }
 
         internal fun <S> body(
             cozy: SourcedCozy<S>,
@@ -225,11 +259,12 @@ interface Attributes {
             Has.Comments by commentVisitor(cozy, commentVisitor),
             Has.Documentation by documentationVisitor(cozy, documentationVisitor) {}
 
-        internal fun <S> property(
-            cozy: SourcedCozy<S>,
+        internal fun <A, S> property(
+            cozy: Cozy<A>,
             modifiers: (S) -> MutableCollection<KModifier>,
             annotations: (S) -> MutableCollection<AnnotationSpec>,
-        ): Property =
+        ): Property
+                where A : Sourced<S>, A : Required.Holder =
             object :
                 Property,
                 Sourced<S> by sourcedByCozy(cozy),
@@ -241,6 +276,5 @@ interface Attributes {
 
 }
 
-inline fun <reified T> Attributes.Has.Type.type() = type(T::class)
 
 private typealias SourcedCozy<S> = Cozy<out Attributes.Sourced<S>>

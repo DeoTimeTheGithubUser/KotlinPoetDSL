@@ -2,7 +2,9 @@ package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.ParameterSpec
 import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 
 class ParameterBuilder private constructor(private val cozy: Cozy<ParameterBuilder>) :
@@ -14,7 +16,8 @@ class ParameterBuilder private constructor(private val cozy: Cozy<ParameterBuild
         cozy = cozy,
         modifiers = ParameterSpec.Builder::modifiers,
         annotations = ParameterSpec.Builder::annotations,
-    ) {
+    ),
+    Required.Holder by requiredHolder() {
 
     override val source by withRequired { ParameterSpec.builder(name, type) }
 

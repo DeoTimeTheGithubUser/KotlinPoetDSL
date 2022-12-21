@@ -4,7 +4,9 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.jvm.transient
 import com.squareup.kotlinpoet.jvm.volatile
 import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 
 class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder>) :
@@ -16,7 +18,8 @@ class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder
         cozy = cozy,
         modifiers = PropertySpec.Builder::modifiers,
         annotations = PropertySpec.Builder::annotations
-    ) {
+    ),
+    Required.Holder by requiredHolder() {
 
     override val source by withRequired { PropertySpec.builder(name, type) }
 

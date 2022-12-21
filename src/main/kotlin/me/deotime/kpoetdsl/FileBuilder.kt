@@ -1,10 +1,13 @@
 package me.deotime.kpoetdsl
 
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
 import me.deotime.kpoetdsl.utils.buildWith
 import me.deotime.kpoetdsl.utils.required
+import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
 
@@ -15,7 +18,8 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     Attributes.Has.Properties by Attributes.propertiesVisitor(cozy, FileSpec.Builder::members),
     Attributes.Has.Comments by Attributes.commentVisitor(cozy, FileSpec.Builder::addFileComment),
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, FileSpec.Builder::addFunction),
-    Attributes.Has.Annotations by Attributes.annotationVisitor(cozy, FileSpec.Builder::annotations) {
+    Attributes.Has.Annotations by Attributes.annotationVisitor(cozy, FileSpec.Builder::annotations),
+    Required.Holder by requiredHolder() {
 
     private var pack by required<String>()
     override val source by withRequired { FileSpec.builder(pack, name) }
@@ -33,6 +37,10 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     }
 
     fun import(vararg types: KClass<*>) {
+        types.forEach(source::addImport)
+    }
+
+    fun import(vararg types: ClassName) {
         types.forEach(source::addImport)
     }
 

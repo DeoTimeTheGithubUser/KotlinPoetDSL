@@ -3,14 +3,14 @@ package me.deotime.kpoetdsl
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
-import com.squareup.kotlinpoet.jvm.jvmStatic
 import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
-import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
 
 class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder>) :
     Attributes.Sourced<FunSpec.Builder>,
@@ -25,7 +25,8 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         cozy = cozy,
         modifiers = FunSpec.Builder::modifiers,
         annotations = FunSpec.Builder::annotations,
-    ) {
+    ),
+    Required.Holder by requiredHolder() {
 
     override val source by withRequired { model.builder(name) }
 
@@ -67,13 +68,19 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         modifiers { +KModifier.OPERATOR }
     }
 
-    fun returns(type: TypeName) { source.returns(type) }
-    fun returns(type: KClass<*>) = returns(type.asTypeName())
-    inline fun <reified T> returns() = returns(T::class)
+    fun returns(type: TypeName) {
+        source.returns(type)
+    }
 
-    fun receiver(type: TypeName) { source.receiver(type) }
+    fun returns(type: KClass<*>) = returns(type.asTypeName())
+    inline fun <reified T> returns() = returns(typeOf<T>().asTypeName())
+
+    fun receiver(type: TypeName) {
+        source.receiver(type)
+    }
+
     fun receiver(type: KClass<*>) = receiver(type.asTypeName())
-    inline fun <reified T> receiver() = receiver(T::class)
+    inline fun <reified T> receiver() = receiver(typeOf<T>().asTypeName())
 
     private fun nameNoOp() {
         name("no-op")

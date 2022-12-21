@@ -4,10 +4,11 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.utils.Assembler
+import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
 import me.deotime.kpoetdsl.utils.required
+import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
-import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
 class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
@@ -21,7 +22,8 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
         cozy = cozy,
         modifiers = TypeSpec.Builder::modifiers,
         annotations = TypeSpec.Builder::annotationSpecs,
-    ) {
+    ),
+    Required.Holder by requiredHolder() {
 
     override val source by withRequired { kind.init(if (kind == Type.Selector.Anonymous) "no-op" else name) }
     private var kind by required<Type>()
