@@ -72,10 +72,13 @@ interface Attributes {
             fun annotation(assembler: Assembler<AnnotationBuilder>)
 
             companion object {
-                inline fun <reified T> Annotations.annotation(noinline assembler: Assembler<AnnotationBuilder>? = null) =
+                inline fun <reified T> Annotations.annotation(
+                    overload: Nothing? = null,
+                    crossinline assembler: Assembler<AnnotationBuilder> = {}
+                ) =
                     annotation {
                         type<T>()
-                        assembler?.invoke(this)
+                        assembler()
                     }
             }
         }
