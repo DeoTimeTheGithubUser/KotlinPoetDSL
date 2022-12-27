@@ -1,6 +1,7 @@
 package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.CodeBlock
+import me.deotime.kpoetdsl.utils.buildWith
 
 class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
     Attributes.Buildable<CodeBlock> by Attributes.buildWith(cozy, CodeBlock.Builder::build),
@@ -14,6 +15,8 @@ class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
     operator fun String.unaryPlus() = +this()
     companion object Initializer : Cozy.Initializer<CodeBuilder>(::CodeBuilder)
 }
+
+inline fun code(closure: CodeBuilder.() -> Unit) = CodeBuilder.cozy().buildWith(closure)
 
 operator fun String.invoke(vararg args: Any?) = CodeBlock.of(this, *args)
 
