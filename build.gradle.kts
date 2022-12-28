@@ -7,7 +7,6 @@ plugins {
 }
 
 group = "me.deotime"
-version = "1.0.3-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -30,7 +29,6 @@ publishing {
 
             groupId = "me.deotime"
             artifactId = "kotlin-poet-dsl"
-            version = "1.0.3-SNAPSHOT"
 
             from(components["java"])
 
