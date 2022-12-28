@@ -46,6 +46,7 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
         primaryConstructor.parameter(prop.name) {
             type(prop.type)
         }
+        source.addProperty(prop)
     }
 
     fun initializer(assembler: Assembler<CodeBuilder>) {
