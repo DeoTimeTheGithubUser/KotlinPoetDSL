@@ -3,6 +3,7 @@ package me.deotime.kpoetdsl
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.Import
+import com.squareup.kotlinpoet.MemberName
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
@@ -47,6 +48,10 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
 
     fun import(packageName: String, vararg children: String) {
         source.addImport(packageName, *children)
+    }
+
+    fun import(vararg types: MemberName) {
+        types.map { it.packageName to it.simpleName }.forEach { (a, b) -> import(a, b) }
     }
 
     inline fun <reified T> import() = import(T::class)
