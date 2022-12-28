@@ -33,10 +33,7 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
     }
 
     fun constructor(assembler: Assembler<FunctionBuilder>) {
-        function {
-            constructor()
-            assembler()
-        }
+        source.primaryConstructor(FunctionBuilder.cozy().buildWith(assembler))
     }
 
     fun initializer(assembler: Assembler<CodeBuilder>) {
