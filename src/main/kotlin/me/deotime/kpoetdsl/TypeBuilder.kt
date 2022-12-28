@@ -28,7 +28,7 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
     override val source by withRequired { kind.init(if (kind == Type.Selector.Anonymous) "no-op" else name) }
     private var kind by required<Type>()
 
-    private val primaryConstructor = FunctionBuilder.cozy()
+    private val primaryConstructor = FunctionBuilder.cozy().apply { constructor() }
 
     fun kind(selector: Type.Selector.() -> Type) {
         kind = selector(Type.Selector)
