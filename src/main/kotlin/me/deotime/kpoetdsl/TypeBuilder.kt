@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 
 class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
     Attributes.Sourced<TypeSpec.Builder>,
-    Attributes.Buildable<TypeSpec> by Attributes.buildWith(cozy, TypeSpec.Builder::build),
+    Attributes.Buildable<TypeSpec>,
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, TypeSpec.Builder::addFunction),
     Attributes.Has.Properties by Attributes.propertiesVisitor(cozy, TypeSpec.Builder::propertySpecs),
     Attributes.Has.Type.Parameters by Attributes.parameterizedTypeVisitor(cozy, TypeSpec.Builder::typeVariables),
@@ -28,12 +28,24 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
     override val source by withRequired { kind.init(if (kind == Type.Selector.Anonymous) "no-op" else name) }
     private var kind by required<Type>()
 
+    private val primaryConstructor = FunctionBuilder.cozy()
+
     fun kind(selector: Type.Selector.() -> Type) {
         kind = selector(Type.Selector)
     }
 
     fun constructor(assembler: Assembler<FunctionBuilder>) {
         source.primaryConstructor(FunctionBuilder.cozy().buildWith(assembler))
+    }
+
+    fun constructorProperty(assembler: Assembler<PropertyBuilder>) {
+        val prop = PropertyBuilder.cozy().buildWith {
+            assembler()
+            initializer { +name }
+        }
+        primaryConstructor.parameter(prop.name) {
+            type(prop.type)
+        }
     }
 
     fun initializer(assembler: Assembler<CodeBuilder>) {
@@ -59,6 +71,11 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
     }
 
     inline fun <reified T> implement() = implement(T::class.asTypeName())
+
+    override fun build() =
+        source.apply {
+            primaryConstructor.build().takeIf { it.parameters.isNotEmpty() }?.let { primaryConstructor(it) }
+        }.build()
 
     @JvmInline
     value class Type private constructor(val init: (String) -> TypeSpec.Builder) {
