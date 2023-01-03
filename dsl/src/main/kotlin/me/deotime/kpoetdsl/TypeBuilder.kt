@@ -92,6 +92,6 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
         }
     }
 
-    companion object Initializer : Cozy.Initializer<TypeBuilder>(::TypeBuilder)
+    companion object Initializer : Cozy.Initializer<TypeBuilder> by cozied(::TypeBuilder)
 
 }

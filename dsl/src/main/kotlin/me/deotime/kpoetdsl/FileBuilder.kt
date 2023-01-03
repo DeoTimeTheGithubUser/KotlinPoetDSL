@@ -57,7 +57,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
 
     override fun build() = KotlinCode(source.build())
 
-    companion object Initializer : Cozy.Initializer<FileBuilder>(::FileBuilder)
+    companion object Initializer : Cozy.Initializer<FileBuilder> by cozied(::FileBuilder)
 }
 
 inline fun kotlin(closure: FileBuilder.() -> Unit) =

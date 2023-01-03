@@ -7,7 +7,12 @@ class Cozy<T> {
     operator fun getValue(ref: Any?, prop: KProperty<*>?) = value!!
     operator fun invoke(ref: T) { value = ref }
 
-    abstract class Initializer<T>(private val initializer: (Cozy<T>) -> T) {
-        fun cozy() = Cozy<T>().let { cozy -> initializer(cozy).also { cozy(it) } }
+    interface Initializer<T> {
+        fun cozy(): T
     }
+
+}
+
+fun <T> cozied(initializer: (Cozy<T>) -> T) = object : Cozy.Initializer<T> {
+    override fun cozy() = Cozy<T>().let { cozy -> initializer(cozy).also { cozy(it) } }
 }
