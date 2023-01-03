@@ -94,7 +94,7 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         name("no-op")
     }
 
-    companion object Initializer : Cozy.Initializer<FunctionBuilder>(::FunctionBuilder)
+    companion object Initializer : Cozy.Initializer<FunctionBuilder> by cozied(::FunctionBuilder)
 
     @JvmInline
     value class Operator private constructor(val name: String) {

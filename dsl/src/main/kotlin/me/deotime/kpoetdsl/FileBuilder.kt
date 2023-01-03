@@ -2,7 +2,6 @@ package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.Import
 import com.squareup.kotlinpoet.MemberName
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
@@ -58,7 +57,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
 
     override fun build() = KotlinCode(source.build())
 
-    companion object Initializer : Cozy.Initializer<FileBuilder>(::FileBuilder)
+    companion object Initializer : Cozy.Initializer<FileBuilder> by cozied(::FileBuilder)
 }
 
 inline fun kotlin(closure: FileBuilder.() -> Unit) =

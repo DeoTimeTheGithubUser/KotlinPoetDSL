@@ -25,5 +25,5 @@ class ParameterBuilder private constructor(private val cozy: Cozy<ParameterBuild
         source.defaultValue(CodeBuilder.cozy().buildWith(assembler))
     }
 
-    companion object Initializer : Cozy.Initializer<ParameterBuilder>(::ParameterBuilder)
+    companion object Initializer : Cozy.Initializer<ParameterBuilder> by cozied(::ParameterBuilder)
 }

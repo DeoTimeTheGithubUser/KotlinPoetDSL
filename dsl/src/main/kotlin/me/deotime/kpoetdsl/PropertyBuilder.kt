@@ -55,5 +55,5 @@ class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder
         source.setter(FunctionBuilder.cozy().apply { setter() }.buildWith(assembler))
     }
 
-    companion object Initializer : Cozy.Initializer<PropertyBuilder>(::PropertyBuilder)
+    companion object Initializer : Cozy.Initializer<PropertyBuilder> by cozied(::PropertyBuilder)
 }

@@ -54,6 +54,6 @@ class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBui
         }
     }
 
-    companion object Initializer : Cozy.Initializer<AnnotationBuilder>(::AnnotationBuilder)
+    companion object Initializer : Cozy.Initializer<AnnotationBuilder> by cozied(::AnnotationBuilder)
 
 }
