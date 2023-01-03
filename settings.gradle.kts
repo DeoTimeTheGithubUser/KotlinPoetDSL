@@ -1,3 +1,5 @@
-
-rootProject.name = "kotpoetdsl"
-
+rootProject.name = "kotlin-poet-dsl"
+include(
+    ":dsl",
+    ":ksp"
+)

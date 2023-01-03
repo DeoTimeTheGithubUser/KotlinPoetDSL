@@ -2,7 +2,6 @@ package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.Import
 import com.squareup.kotlinpoet.MemberName
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
