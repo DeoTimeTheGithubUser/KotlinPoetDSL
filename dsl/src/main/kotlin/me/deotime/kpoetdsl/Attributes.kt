@@ -43,6 +43,7 @@ interface Attributes {
 
     interface Has : Attributes {
         interface Modifiers : Has {
+            val modifiers: List<KModifier>
             fun modifiers(vararg modifiers: KModifier)
             fun modifiers(assembler: CollectionAssembler<KModifier>)
         }
@@ -58,7 +59,8 @@ interface Attributes {
             fun type(type: KType) = type(type.asTypeName())
             fun type(type: KClass<*>) = type(type.asTypeName())
 
-            fun interface Parameters : Has {
+            interface Parameters : Has {
+                val typeParameters: List<TypeVariableName>
                 fun typeParameters(builder: CollectionAssembler<TypeVariableName>)
             }
 
@@ -69,6 +71,7 @@ interface Attributes {
 
 
         interface Annotations : Has {
+            val annotations: List<AnnotationSpec>
             fun annotation(assembler: Assembler<AnnotationBuilder>)
 
             companion object {
@@ -84,11 +87,13 @@ interface Attributes {
         }
 
         interface Functions : Has {
+            val functions: List<FunSpec>
             fun function(assembler: Assembler<FunctionBuilder>)
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
         }
 
         interface Properties : Has {
+            val properties: List<PropertySpec>
             fun property(assembler: Assembler<PropertyBuilder>)
             fun property(name: String, assembler: Assembler<PropertyBuilder>)
 
@@ -133,6 +138,8 @@ interface Attributes {
             holder: (S) -> MutableCollection<KModifier>
         ): Has.Modifiers =
             object : Has.Modifiers, Sourced<S> by sourcedByCozy(cozy) {
+
+                override val modifiers get() = holder(source).toList()
                 override fun modifiers(assembler: CollectionAssembler<KModifier>) {
                     buildCollectionTo(holder(source), assembler)
                 }
@@ -147,6 +154,7 @@ interface Attributes {
             visitor: (S) -> MutableCollection<TypeVariableName>
         ): Has.Type.Parameters =
             object : Has.Type.Parameters, Sourced<S> by sourcedByCozy(cozy) {
+                override val typeParameters get() = visitor(source).toList()
                 override fun typeParameters(builder: CollectionAssembler<TypeVariableName>) {
                     buildCollectionTo(visitor(source), builder)
                 }
@@ -157,6 +165,7 @@ interface Attributes {
             holder: (S) -> MutableCollection<AnnotationSpec>
         ): Has.Annotations =
             object : Has.Annotations, Sourced<S> by sourcedByCozy(cozy) {
+                override val annotations get() = holder(source).toList()
                 override fun annotation(assembler: Assembler<AnnotationBuilder>) {
                     holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
                 }
@@ -168,6 +177,7 @@ interface Attributes {
             holder: (S) -> MutableCollection<Any> // some weird stuff in certain specs
         ): Has.Properties =
             object : Has.Properties, Sourced<S> by sourcedByCozy(cozy) {
+                override val properties get() = holder(source).filterIsInstance<PropertySpec>()
                 override fun property(assembler: Assembler<PropertyBuilder>) {
                     holder(source).add(PropertyBuilder.cozy().buildWith(assembler))
                 }
@@ -177,10 +187,9 @@ interface Attributes {
                 }
             }
 
-        @JvmName("propertyVisitor_typed")
         internal fun <S> propertiesVisitor(
             cozy: SourcedCozy<S>,
-            holder: (S) -> MutableCollection<PropertySpec> // some weird stuff in certain specs
+            holder: (S) -> MutableCollection<PropertySpec>
         ) = propertiesVisitor(cozy, holder as ((S) -> MutableCollection<Any>))
 
         internal fun <S, B> buildWith(cozy: SourcedCozy<S>, holder: (S) -> B): Buildable<B> =
@@ -223,16 +232,21 @@ interface Attributes {
                 }
             }
 
-        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S, FunSpec) -> Unit): Has.Functions =
+        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S) -> MutableList<Any>): Has.Functions =
             object : Has.Functions, Sourced<S> by sourcedByCozy(cozy) {
+                override val functions get() = visitor(source).filterIsInstance<FunSpec>()
                 override fun function(assembler: Assembler<FunctionBuilder>) {
-                    visitor(source, FunctionBuilder.cozy().buildWith(assembler))
+                    visitor(source) += FunctionBuilder.cozy().buildWith(assembler)
                 }
 
                 override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
-                    visitor(source, FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler))
+                    visitor(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
                 }
             }
+
+        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S) -> MutableList<FunSpec>) =
+            functionVisitor(cozy, visitor as (S) -> MutableList<Any>)
+
 
         internal fun nameHolder(cozy: Cozy<out Required.Holder>): Has.Name =
             object : Has.Name, Required.Holder by requiredHolder() {

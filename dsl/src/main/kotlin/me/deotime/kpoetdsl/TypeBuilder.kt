@@ -1,5 +1,6 @@
 package me.deotime.kpoetdsl
 
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
@@ -14,7 +15,7 @@ import kotlin.reflect.KClass
 class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
     Attributes.Sourced<TypeSpec.Builder>,
     Attributes.Buildable<TypeSpec>,
-    Attributes.Has.Functions by Attributes.functionVisitor(cozy, TypeSpec.Builder::addFunction),
+    Attributes.Has.Functions by Attributes.functionVisitor(cozy, TypeSpec.Builder::funSpecs),
     Attributes.Has.Properties by Attributes.propertiesVisitor(cozy, TypeSpec.Builder::propertySpecs),
     Attributes.Has.Type.Parameters by Attributes.parameterizedTypeVisitor(cozy, TypeSpec.Builder::typeVariables),
     Attributes.Has.Documentation by Attributes.documentationVisitor(cozy, TypeSpec.Builder::addKdoc),

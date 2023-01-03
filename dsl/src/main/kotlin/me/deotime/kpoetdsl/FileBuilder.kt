@@ -18,7 +18,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     Attributes.Has.Name by Attributes.nameHolder(cozy),
     Attributes.Has.Properties by Attributes.propertiesVisitor(cozy, FileSpec.Builder::members),
     Attributes.Has.Comments by Attributes.commentVisitor(cozy, FileSpec.Builder::addFileComment),
-    Attributes.Has.Functions by Attributes.functionVisitor(cozy, FileSpec.Builder::addFunction),
+    Attributes.Has.Functions by Attributes.functionVisitor(cozy, FileSpec.Builder::members),
     Attributes.Has.Annotations by Attributes.annotationVisitor(cozy, FileSpec.Builder::annotations),
     Required.Holder by requiredHolder() {
 

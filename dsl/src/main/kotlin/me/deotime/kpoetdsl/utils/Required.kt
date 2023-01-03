@@ -13,13 +13,13 @@ class Required<T>(private var holder: (() -> Holder)? = null) {
     operator fun provideDelegate(ref: Holder, prop: KProperty<*>): Required<T> {
         holder ?: run { holder = { ref } }
         this.prop = prop
-        ref.properties.add(this)
+        ref.requireds.add(this)
         return this
     }
 
     operator fun setValue(ref: Holder, prop: KProperty<*>, value: T) {
         this.value = value
-        ref.properties.remove(this)
+        ref.requireds.remove(this)
     }
 
     operator fun getValue(ref: Any, prop: KProperty<*>) =
@@ -29,7 +29,7 @@ class Required<T>(private var holder: (() -> Holder)? = null) {
     class Accessor<T>(private val closure: () -> T) {
         private var value: T? = null
         operator fun getValue(ref: Holder, prop: KProperty<*>) =
-            value ?: ref.properties.takeIf { it.isNotEmpty() }
+            value ?: ref.requireds.takeIf { it.isNotEmpty() }
                 ?.let { error("The required properties ${it.map { it.prop }} need to be initialized before use.") }
             ?: closure().also {
                 value = it
@@ -37,12 +37,12 @@ class Required<T>(private var holder: (() -> Holder)? = null) {
     }
 
     interface Holder {
-        val properties: MutableList<Required<*>>
+        val requireds: MutableList<Required<*>>
     }
 }
 
 internal class RequiredHolderImpl : Required.Holder {
-    override val properties = mutableListOf<Required<*>>()
+    override val requireds = mutableListOf<Required<*>>()
 }
 
 fun <T> required() = Required<T>()

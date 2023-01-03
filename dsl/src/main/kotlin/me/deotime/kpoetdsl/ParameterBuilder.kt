@@ -7,7 +7,9 @@ import me.deotime.kpoetdsl.utils.buildWith
 import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 
-class ParameterBuilder private constructor(private val cozy: Cozy<ParameterBuilder>) :
+class ParameterBuilder private constructor(
+    private val cozy: Cozy<ParameterBuilder>,
+) :
     Attributes.Sourced<ParameterSpec.Builder>,
     Attributes.Buildable<ParameterSpec> by Attributes.buildWith(cozy, ParameterSpec.Builder::build),
     Attributes.Has.Type by Attributes.typeHolder(cozy),
