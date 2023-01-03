@@ -6,37 +6,40 @@ plugins {
     application
 }
 
-group = "me.deotime"
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
 allprojects {
+
+    group = "me.deotime"
+    version = project.property("version") ?: error("Version is required in gradle.properties")
+
     repositories {
         mavenCentral()
     }
+
+    tasks.withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
 
     dependencies {
         apply(plugin = "org.jetbrains.kotlin.jvm")
         implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.22")
         implementation("com.squareup:kotlinpoet:1.12.0")
     }
-}
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-
-            groupId = "me.deotime"
-            artifactId = "kotlin-poet-dsl"
-
-            from(components["java"])
-
-            pom {
-                name.set("kotlin-poet-dsl")
-                description.set("DSL wrapper for the KotlinPoet library.")
+    afterEvaluate {
+        publishing {
+            repositories {
+                maven {
+                    name = "deotime"
+                    url = uri("https://repo.q64.io/deotime")
+                    credentials {
+                        username = "deotime"
+                        password = System.getenv("RAIN_REPO_PW")
+                    }
+                }
             }
         }
     }
 }
+
+

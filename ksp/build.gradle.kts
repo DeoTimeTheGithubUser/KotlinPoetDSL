@@ -1,11 +1,18 @@
 plugins {
-    id("java")
+    kotlin("jvm")
+    `maven-publish`
 }
-
-group = "me.deotime"
-version = "1.1.0"
 
 dependencies {
     implementation(project(":dsl"))
     implementation("com.google.devtools.ksp:symbol-processing-api:1.7.0-1.0.6")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("ksp") {
+            artifactId = "kotlin-poet-dsl-ksp"
+            from(components["java"])
+        }
+    }
 }
