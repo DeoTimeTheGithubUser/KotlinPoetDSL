@@ -2,8 +2,12 @@ package me.deotime.kpoetdsl.utils
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import kotlin.reflect.typeOf
+
+
+inline fun <reified T : Any> className() = T::class.asClassName()
 
 operator fun ClassName.plus(child: String) = ClassName(packageName, simpleNames + child)
 

@@ -1,5 +1,6 @@
 rootProject.name = "kotlin-poet-dsl"
 include(
     ":dsl",
-    ":ksp"
+    ":ksp",
+    ":all"
 )
