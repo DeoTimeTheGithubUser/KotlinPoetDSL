@@ -1,6 +1,5 @@
 package me.deotime.kpoetdsl
 
-import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
@@ -12,13 +11,14 @@ import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
 
-class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
+sealed class TypeBuilder private constructor(private val cozy: Cozy<out TypeBuilder>) :
     Attributes.Sourced<TypeSpec.Builder>,
     Attributes.Buildable<TypeSpec>,
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, TypeSpec.Builder::funSpecs),
     Attributes.Has.Properties by Attributes.propertiesVisitor(cozy, TypeSpec.Builder::propertySpecs),
     Attributes.Has.Type.Parameters by Attributes.parameterizedTypeVisitor(cozy, TypeSpec.Builder::typeVariables),
     Attributes.Has.Documentation by Attributes.documentationVisitor(cozy, TypeSpec.Builder::addKdoc),
+    Attributes.Has.Classes by Attributes.classesVisitor(cozy, TypeSpec.Builder::typeSpecs),
     Attributes.Property by Attributes.property(
         cozy = cozy,
         modifiers = TypeSpec.Builder::modifiers,
@@ -27,11 +27,11 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
     Required.Holder by requiredHolder() {
 
     override val source by withRequired { kind.init(if (kind == Type.Selector.Anonymous) "no-op" else name) }
-    private var kind by required<Type>()
+    protected open var kind by required<Type>()
 
     private val primaryConstructor = FunctionBuilder.cozy().apply { constructor() }
 
-    fun kind(selector: Type.Selector.() -> Type) {
+    open fun kind(selector: Type.Selector.() -> Type) {
         kind = selector(Type.Selector)
     }
 
@@ -79,20 +79,42 @@ class TypeBuilder private constructor(private val cozy: Cozy<TypeBuilder>) :
             primaryConstructor.build().takeIf { it.parameters.isNotEmpty() }?.let { primaryConstructor(it) }
         }.build()
 
+    class Enum(cozy: Cozy<Enum>) : TypeBuilder(cozy) {
+
+        init {
+            kind = Type.Selector.Enum
+        }
+
+        @Deprecated("Enum cannot have its kind changed.", level = DeprecationLevel.HIDDEN)
+        override fun kind(selector: Type.Selector.() -> Type) = error("Enum cannot have its kind changed.")
+
+        inline val entries get(): Map<String, TypeSpec> = source.enumConstants
+        inline fun entry(name: String, assembler: Assembler<TypeBuilder> = { kind { Anonymous } }) {
+            val cozy = TypeBuilder.cozy()
+            val spec = cozy.buildWith(assembler)
+            source.addEnumConstant(name, spec)
+        }
+
+        companion object Initializer : Cozy.Initializer<Enum> by cozied(::Enum)
+    }
+
     @JvmInline
     value class Type private constructor(val init: (String) -> TypeSpec.Builder) {
         object Selector {
             val Class = Type(TypeSpec.Companion::classBuilder)
-            val Enum = Type(TypeSpec.Companion::enumBuilder)
             val Interface = Type(TypeSpec.Companion::interfaceBuilder)
             val Annotation = Type(TypeSpec.Companion::annotationBuilder)
             val Object = Type(TypeSpec.Companion::objectBuilder)
             val Value = Type(TypeSpec.Companion::valueClassBuilder)
             val Anonymous = Type { TypeSpec.anonymousClassBuilder() }
             val Functional = Type(TypeSpec.Companion::funInterfaceBuilder)
+            internal val Enum = Type(TypeSpec.Companion::enumBuilder)
         }
     }
 
-    companion object Initializer : Cozy.Initializer<TypeBuilder> by cozied(::TypeBuilder)
+
+    private class Normal(cozy: Cozy<out TypeBuilder>) : TypeBuilder(cozy)
+
+    companion object Initializer : Cozy.Initializer<TypeBuilder> by cozied(::Normal)
 
 }

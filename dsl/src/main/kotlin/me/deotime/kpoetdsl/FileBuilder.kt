@@ -3,7 +3,6 @@ package me.deotime.kpoetdsl
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.MemberName
-import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
 import me.deotime.kpoetdsl.utils.buildWith
@@ -20,6 +19,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     Attributes.Has.Comments by Attributes.commentVisitor(cozy, FileSpec.Builder::addFileComment),
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, FileSpec.Builder::members),
     Attributes.Has.Annotations by Attributes.annotationVisitor(cozy, FileSpec.Builder::annotations),
+    Attributes.Has.Classes by Attributes.classesVisitor(cozy, FileSpec.Builder::members),
     Required.Holder by requiredHolder() {
 
     private var pack by required<String>()
@@ -27,14 +27,6 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
 
     infix fun Uses.Name.packaged(pack: String) {
         this@FileBuilder.pack = pack
-    }
-
-    inline fun type(assembler: Assembler<TypeBuilder>) {
-        source.addType(TypeBuilder.cozy().buildWith(assembler))
-    }
-
-    inline fun type(name: String, assembler: Assembler<TypeBuilder>) {
-        source.addType(TypeBuilder.cozy().apply { name(name) }.buildWith(assembler))
     }
 
     fun import(vararg types: KClass<*>) {

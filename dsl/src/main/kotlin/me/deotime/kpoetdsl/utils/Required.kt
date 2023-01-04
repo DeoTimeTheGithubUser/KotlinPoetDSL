@@ -13,13 +13,13 @@ class Required<T>(private var holder: (() -> Holder)? = null) {
     operator fun provideDelegate(ref: Holder, prop: KProperty<*>): Required<T> {
         holder ?: run { holder = { ref } }
         this.prop = prop
-        ref.requireds.add(this)
+        ref.requireds += this
         return this
     }
 
     operator fun setValue(ref: Holder, prop: KProperty<*>, value: T) {
         this.value = value
-        ref.requireds.remove(this)
+        ref.requireds -= this
     }
 
     operator fun getValue(ref: Any, prop: KProperty<*>) =

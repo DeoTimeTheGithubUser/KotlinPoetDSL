@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
@@ -65,7 +66,7 @@ interface Attributes {
             }
 
             companion object {
-                inline fun <reified T> Attributes.Has.Type.type() = type(typeOf<T>())
+                inline fun <reified T> Type.type() = type(typeOf<T>())
             }
         }
 
@@ -90,6 +91,12 @@ interface Attributes {
             val functions: List<FunSpec>
             fun function(assembler: Assembler<FunctionBuilder>)
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
+        }
+
+        interface Classes : Has {
+            val types: List<TypeSpec>
+            fun type(name: String? = null, assembler: Assembler<TypeBuilder>)
+            fun enum(name: String? = null, assembler: Assembler<TypeBuilder.Enum>)
         }
 
         interface Properties : Has {
@@ -174,9 +181,11 @@ interface Attributes {
 
         internal fun <S> propertiesVisitor(
             cozy: SourcedCozy<S>,
-            holder: (S) -> MutableCollection<Any> // some weird stuff in certain specs
+            holder: (S) -> MutableCollection<in PropertySpec>
         ): Has.Properties =
             object : Has.Properties, Sourced<S> by sourcedByCozy(cozy) {
+
+                @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val properties get() = holder(source).filterIsInstance<PropertySpec>()
                 override fun property(assembler: Assembler<PropertyBuilder>) {
                     holder(source).add(PropertyBuilder.cozy().buildWith(assembler))
@@ -187,10 +196,23 @@ interface Attributes {
                 }
             }
 
-        internal fun <S> propertiesVisitor(
+
+        internal fun <S> classesVisitor(
             cozy: SourcedCozy<S>,
-            holder: (S) -> MutableCollection<PropertySpec>
-        ) = propertiesVisitor(cozy, holder as ((S) -> MutableCollection<Any>))
+            holder: (S) -> MutableList<in TypeSpec>
+        ): Has.Classes =
+            object : Has.Classes, Sourced<S> by sourcedByCozy(cozy) {
+                @Suppress("UselessCallOnCollection") // inspection is wrong
+                override val types get() = holder(source).filterIsInstance<TypeSpec>()
+
+                override fun type(name: String?, assembler: Assembler<TypeBuilder>) {
+                    holder(source) += TypeBuilder.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
+                }
+
+                override fun enum(name: String?, assembler: Assembler<TypeBuilder.Enum>) {
+                    holder(source) += TypeBuilder.Enum.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
+                }
+            }
 
         internal fun <S, B> buildWith(cozy: SourcedCozy<S>, holder: (S) -> B): Buildable<B> =
             object : Buildable<B>, Sourced<S> by sourcedByCozy(cozy) {
@@ -232,8 +254,10 @@ interface Attributes {
                 }
             }
 
-        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S) -> MutableList<Any>): Has.Functions =
+        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S) -> MutableList<in FunSpec>): Has.Functions =
             object : Has.Functions, Sourced<S> by sourcedByCozy(cozy) {
+
+                @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val functions get() = visitor(source).filterIsInstance<FunSpec>()
                 override fun function(assembler: Assembler<FunctionBuilder>) {
                     visitor(source) += FunctionBuilder.cozy().buildWith(assembler)
@@ -243,9 +267,6 @@ interface Attributes {
                     visitor(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
                 }
             }
-
-        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S) -> MutableList<FunSpec>) =
-            functionVisitor(cozy, visitor as (S) -> MutableList<Any>)
 
 
         internal fun nameHolder(cozy: Cozy<out Required.Holder>): Has.Name =
