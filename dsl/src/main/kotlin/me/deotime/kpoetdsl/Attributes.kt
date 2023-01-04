@@ -183,6 +183,10 @@ interface Attributes {
                 override fun annotate(assembler: Assembler<AnnotationBuilder>) {
                     holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
                 }
+
+                override fun AnnotationSpec.unaryPlus() {
+                    holder(source) += this
+                }
             }
 
 
@@ -267,7 +271,7 @@ interface Attributes {
             }
 
         internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S) -> MutableList<in FunSpec>): Has.Functions =
-            object : Has.Functions, Sourced<S> by sourcedByCozy(cozy), Additive<FunSpec> by adder(cozy, visitor) {
+            object : Has.Functions, Sourced<S> by sourcedByCozy(cozy) {
 
                 @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val functions get() = visitor(source).filterIsInstance<FunSpec>()
@@ -277,6 +281,10 @@ interface Attributes {
 
                 override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
                     visitor(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
+                }
+
+                override fun FunSpec.unaryPlus() {
+                    visitor(source) += this
                 }
             }
 
