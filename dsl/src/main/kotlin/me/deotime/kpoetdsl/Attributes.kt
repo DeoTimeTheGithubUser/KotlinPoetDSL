@@ -34,6 +34,10 @@ interface Attributes {
         fun build(): T
     }
 
+    fun interface Additive<T> {
+        operator fun T.unaryPlus()
+    }
+
     interface Property :
         Has.Modifiers,
         Has.Name,
@@ -62,7 +66,7 @@ interface Attributes {
             fun type(type: KType) = type(type.asTypeName())
             fun type(type: KClass<*>) = type(type.asTypeName())
 
-            interface Parameters : Has {
+            interface Parameters : Has, Additive<TypeVariableName> {
                 val typeParameters: List<TypeVariableName>
                 fun typeParameters(builder: CollectionAssembler<TypeVariableName>)
             }
@@ -73,7 +77,7 @@ interface Attributes {
         }
 
 
-        interface Annotations : Has {
+        interface Annotations : Has, Additive<AnnotationSpec> {
             val annotations: List<AnnotationSpec>
             fun annotate(assembler: Assembler<AnnotationBuilder>)
 
@@ -89,20 +93,20 @@ interface Attributes {
             }
         }
 
-        interface Functions : Has {
+        interface Functions : Has, Additive<FunSpec> {
             val functions: List<FunSpec>
             fun function(assembler: Assembler<FunctionBuilder>)
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
         }
 
-        interface Classes : Has {
+        interface Classes : Has, Additive<TypeSpec> {
             val types: List<TypeSpec>
             fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
             fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
             fun enum(name: String? = null, assembler: Assembler<TypeBuilder.Enum>)
         }
 
-        interface Properties : Has {
+        interface Properties : Has, Additive<PropertySpec> {
             val properties: List<PropertySpec>
             fun property(assembler: Assembler<PropertyBuilder>)
             fun property(name: String, assembler: Assembler<PropertyBuilder>)
@@ -163,7 +167,7 @@ interface Attributes {
             cozy: SourcedCozy<S>,
             visitor: (S) -> MutableCollection<TypeVariableName>
         ): Has.Type.Parameters =
-            object : Has.Type.Parameters, Sourced<S> by sourcedByCozy(cozy) {
+            object : Has.Type.Parameters, Sourced<S> by sourcedByCozy(cozy), Additive<TypeVariableName> by adder(cozy, visitor) {
                 override val typeParameters get() = visitor(source).toList()
                 override fun typeParameters(builder: CollectionAssembler<TypeVariableName>) {
                     buildCollectionTo(visitor(source), builder)
@@ -174,10 +178,14 @@ interface Attributes {
             cozy: SourcedCozy<S>,
             holder: (S) -> MutableCollection<AnnotationSpec>
         ): Has.Annotations =
-            object : Has.Annotations, Sourced<S> by sourcedByCozy(cozy) {
+            object : Has.Annotations, Sourced<S> by sourcedByCozy(cozy), Additive<AnnotationSpec> by adder(cozy, holder) {
                 override val annotations get() = holder(source).toList()
                 override fun annotate(assembler: Assembler<AnnotationBuilder>) {
                     holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
+                }
+
+                override fun AnnotationSpec.unaryPlus() {
+                    holder(source) += this
                 }
             }
 
@@ -186,7 +194,7 @@ interface Attributes {
             cozy: SourcedCozy<S>,
             holder: (S) -> MutableCollection<in PropertySpec>
         ): Has.Properties =
-            object : Has.Properties, Sourced<S> by sourcedByCozy(cozy) {
+            object : Has.Properties, Sourced<S> by sourcedByCozy(cozy), Additive<PropertySpec> by adder(cozy, holder) {
 
                 @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val properties get() = holder(source).filterIsInstance<PropertySpec>()
@@ -204,7 +212,7 @@ interface Attributes {
             cozy: SourcedCozy<S>,
             holder: (S) -> MutableList<in TypeSpec>
         ): Has.Classes =
-            object : Has.Classes, Sourced<S> by sourcedByCozy(cozy) {
+            object : Has.Classes, Sourced<S> by sourcedByCozy(cozy), Additive<TypeSpec> by adder(cozy, holder) {
                 @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val types get() = holder(source).filterIsInstance<TypeSpec>()
 
@@ -273,6 +281,17 @@ interface Attributes {
 
                 override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
                     visitor(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
+                }
+
+                override fun FunSpec.unaryPlus() {
+                    visitor(source) += this
+                }
+            }
+
+        internal fun <T, S> adder(cozy: SourcedCozy<S>, holder: (S) -> MutableCollection<in T>): Additive<T> =
+            object : Sourced<S> by sourcedByCozy(cozy), Additive<T> {
+                override fun T.unaryPlus() {
+                    holder(source) += this
                 }
             }
 
