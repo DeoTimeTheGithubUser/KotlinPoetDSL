@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
+import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Enum
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
@@ -29,7 +30,7 @@ sealed class TypeBuilder private constructor(
     ),
     Required.Holder by requiredHolder() {
 
-    override val source by withRequired { kind.init(if (kind == TypeKind._Anonymous) "no-op" else name) }
+    override val source by withRequired { kind.init(if (kind == TypeKind.Scope.Enum) "no-op" else name) }
 
     private val primaryConstructor = FunctionBuilder.cozy().apply { constructor() }
 
@@ -77,11 +78,11 @@ sealed class TypeBuilder private constructor(
             primaryConstructor.build().takeIf { it.parameters.isNotEmpty() }?.let { primaryConstructor(it) }
         }.build()
 
-    class Enum(cozy: Cozy<Enum>) : TypeBuilder(cozy, TypeKind._Enum) {
+    class Enum(cozy: Cozy<Enum>) : TypeBuilder(cozy, TypeKind.Scope.Enum) {
 
         inline val entries get(): Map<String, TypeSpec> = source.enumConstants
         inline fun entry(name: String, assembler: Assembler<TypeBuilder> = { }) {
-            val spec = TypeBuilder.cozy(TypeKind._Anonymous).buildWith(assembler)
+            val spec = TypeBuilder.cozy(TypeKind.Scope.Enum).buildWith(assembler)
             source.addEnumConstant(name, spec)
         }
 
@@ -102,23 +103,19 @@ value class TypeKind<T : TypeBuilder, N : TypeKind.Naming> private constructor(v
         sealed interface None : Naming
     }
 
-    companion object {
-        private fun normalKind(init: (String) -> TypeSpec.Builder) =
-            lazy(LazyThreadSafetyMode.NONE) { TypeKind<TypeBuilder, Naming>(init) }
+    interface Scope {
+        companion object : Scope {
+            private fun normalKind(init: (String) -> TypeSpec.Builder) =
+                lazy(LazyThreadSafetyMode.NONE) { TypeKind<TypeBuilder, Naming>(init) }
 
-        val FileBuilder.Class by normalKind(TypeSpec.Companion::classBuilder)
-        val FileBuilder.Interface by normalKind(TypeSpec.Companion::interfaceBuilder)
-        val FileBuilder.Annotation by normalKind(TypeSpec.Companion::annotationBuilder)
-        val FileBuilder.Object by normalKind(TypeSpec.Companion::objectBuilder)
-        val FileBuilder.Value by normalKind(TypeSpec.Companion::valueClassBuilder)
-        val FileBuilder.Functional by normalKind(TypeSpec.Companion::funInterfaceBuilder)
-
-
-        @PublishedApi
-        internal val _Anonymous = TypeKind<TypeBuilder, Naming.None> { TypeSpec.anonymousClassBuilder() }
-        val FileBuilder.Anonymous get() = _Anonymous
-
-        internal val _Enum = TypeKind<TypeBuilder.Enum, Naming>(TypeSpec.Companion::enumBuilder)
-        val FileBuilder.Enum get() = _Enum
+            val Scope.Class by normalKind(TypeSpec.Companion::classBuilder)
+            val Scope.Interface by normalKind(TypeSpec.Companion::interfaceBuilder)
+            val Scope.Annotation by normalKind(TypeSpec.Companion::annotationBuilder)
+            val Scope.Object by normalKind(TypeSpec.Companion::objectBuilder)
+            val Scope.Value by normalKind(TypeSpec.Companion::valueClassBuilder)
+            val Scope.Functional by normalKind(TypeSpec.Companion::funInterfaceBuilder)
+            val Scope.Anonymous by lazy { TypeKind<TypeBuilder, Naming.None> { TypeSpec.anonymousClassBuilder() } }
+            val Scope.Enum by lazy { TypeKind<TypeBuilder.Enum, Naming>(TypeSpec.Companion::enumBuilder) }
+        }
     }
 }

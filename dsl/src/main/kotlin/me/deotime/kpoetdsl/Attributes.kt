@@ -11,6 +11,7 @@ import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
+import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Enum
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.CollectionAssembler
 import me.deotime.kpoetdsl.utils.Required
@@ -74,14 +75,14 @@ interface Attributes {
 
         interface Annotations : Has {
             val annotations: List<AnnotationSpec>
-            fun annotation(assembler: Assembler<AnnotationBuilder>)
+            fun annotate(assembler: Assembler<AnnotationBuilder>)
 
             companion object {
-                inline fun <reified T> Annotations.annotation(
+                inline fun <reified T> Annotations.annotate(
                     overload: Nothing? = null,
                     crossinline assembler: Assembler<AnnotationBuilder> = {}
                 ) =
-                    annotation {
+                    annotate {
                         type<T>()
                         assembler()
                     }
@@ -175,7 +176,7 @@ interface Attributes {
         ): Has.Annotations =
             object : Has.Annotations, Sourced<S> by sourcedByCozy(cozy) {
                 override val annotations get() = holder(source).toList()
-                override fun annotation(assembler: Assembler<AnnotationBuilder>) {
+                override fun annotate(assembler: Assembler<AnnotationBuilder>) {
                     holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
                 }
             }
@@ -209,7 +210,7 @@ interface Attributes {
 
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>) {
-                    val builder = (if (kind == TypeKind._Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
+                    val builder = (if (kind == TypeKind.Scope.Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
                     holder(source) += builder.apply { name(name) }.buildWith(assembler)
                 }
 
