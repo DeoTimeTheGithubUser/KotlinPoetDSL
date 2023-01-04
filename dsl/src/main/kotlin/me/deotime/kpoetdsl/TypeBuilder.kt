@@ -27,7 +27,7 @@ sealed class TypeBuilder private constructor(private val cozy: Cozy<out TypeBuil
     Required.Holder by requiredHolder() {
 
     override val source by withRequired { kind.init(if (kind == Type.Selector.Anonymous) "no-op" else name) }
-    protected open var kind by required<Type>()
+    protected var kind by required<Type>()
 
     private val primaryConstructor = FunctionBuilder.cozy().apply { constructor() }
 
