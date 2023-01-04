@@ -20,7 +20,8 @@ class ParameterBuilder private constructor(
         modifiers = ParameterSpec.Builder::modifiers,
         annotations = ParameterSpec.Builder::annotations,
     ),
-    Required.Holder by requiredHolder() {
+    Required.Holder by requiredHolder(),
+    Maybe<ParameterSpec.Builder> by maybe() {
 
     override val source by withRequired { ParameterSpec.builder(name, type) }
 
@@ -28,5 +29,7 @@ class ParameterBuilder private constructor(
         source.defaultValue(CodeBuilder.cozy().buildWith(assembler))
     }
 
-    companion object Initializer : Cozy.Initializer.Simple<ParameterBuilder> by cozied(::ParameterBuilder)
+    companion object Initializer :
+        Cozy.Initializer.Simple<ParameterBuilder> by cozied(::ParameterBuilder),
+        Crumple<ParameterSpec, ParameterBuilder> by unstableMaybeCozyCrumple({ Initializer }, ParameterSpec::toBuilder)
 }

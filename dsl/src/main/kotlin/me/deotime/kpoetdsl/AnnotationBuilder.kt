@@ -14,6 +14,7 @@ import me.deotime.kpoetdsl.utils.withRequired
 class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBuilder>) :
     Attributes.Sourced<AnnotationSpec.Builder>,
     Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build),
+    Maybe<AnnotationSpec.Builder> by maybe(),
     Required.Holder by requiredHolder() {
 
     private var type by required<ClassName>()
@@ -33,7 +34,12 @@ class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBui
 
     inline fun <reified T> type() = type(T::class.asClassName())
 
-    companion object Initializer : Cozy.Initializer.Simple<AnnotationBuilder> by cozied(::AnnotationBuilder)
+    companion object Initializer :
+        Cozy.Initializer.Simple<AnnotationBuilder> by cozied(::AnnotationBuilder),
+        Crumple<AnnotationSpec, AnnotationBuilder> by unstableMaybeCozyCrumple(
+            { Initializer },
+            AnnotationSpec::toBuilder
+        )
 
     object UseSiteTarget {
         inline val AnnotationBuilder.Get get() = AnnotationSpec.UseSiteTarget.GET

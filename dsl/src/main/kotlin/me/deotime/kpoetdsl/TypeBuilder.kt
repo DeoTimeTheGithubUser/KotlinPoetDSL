@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Enum
+import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Unknown
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
@@ -28,7 +29,8 @@ sealed class TypeBuilder private constructor(
         modifiers = TypeSpec.Builder::modifiers,
         annotations = TypeSpec.Builder::annotationSpecs,
     ),
-    Required.Holder by requiredHolder() {
+    Required.Holder by requiredHolder(),
+    Maybe<TypeSpec.Builder> by maybe() {
 
     override val source by withRequired { kind.init(if (kind == TypeKind.Scope.Enum) "no-op" else name) }
 
@@ -92,7 +94,13 @@ sealed class TypeBuilder private constructor(
 
     private class Normal(cozy: Cozy<out TypeBuilder>, kind: TypeKind<*, *>) : TypeBuilder(cozy, kind)
 
-    companion object Initializer : Cozy.Initializer<TypeBuilder, TypeKind<*, *>> by cozied(::Normal)
+    companion object Initializer :
+        Cozy.Initializer<TypeBuilder, TypeKind<*, *>> by cozied(::Normal),
+        Crumple<TypeSpec, TypeBuilder> {
+        override fun TypeSpec.invoke(closure: TypeBuilder.() -> Unit) = cozy(TypeKind.Scope.Unknown).apply {
+            value = this@invoke.toBuilder()
+        }.buildWith(closure)
+    }
 
 }
 
@@ -116,6 +124,8 @@ value class TypeKind<T : TypeBuilder, N : TypeKind.Naming> private constructor(v
             val Scope.Functional by normalKind(TypeSpec.Companion::funInterfaceBuilder)
             val Scope.Anonymous by lazy { TypeKind<TypeBuilder, Naming.None> { TypeSpec.anonymousClassBuilder() } }
             val Scope.Enum by lazy { TypeKind<TypeBuilder.Enum, Naming>(TypeSpec.Companion::enumBuilder) }
+
+            internal val Scope.Unknown get() = TypeKind<Nothing, Nothing> { error("Unknown kind cannot be created") }
         }
     }
 }

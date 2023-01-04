@@ -1,6 +1,7 @@
 package me.deotime.kpoetdsl.utils
 
 import me.deotime.kpoetdsl.Cozy
+import me.deotime.kpoetdsl.Maybe
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -26,13 +27,15 @@ class Required<T>(private var holder: (() -> Holder)? = null) {
         value ?: error("The property ${this.prop.name} is required to be initialized before it can be accessed.")
 
 
-    class Accessor<T>(private val closure: () -> T) {
-        private var value: T? = null
+    class Accessor<T>(
+        private val closure: () -> T,
+        private var value: () -> T? = { null }
+    ) {
         operator fun getValue(ref: Holder, prop: KProperty<*>) =
-            value ?: ref.requireds.takeIf { it.isNotEmpty() }
+            value() ?: ref.requireds.takeIf { it.isNotEmpty() }
                 ?.let { error("The required properties ${it.map { it.prop }} need to be initialized before use.") }
             ?: closure().also {
-                value = it
+                value = { it }
             }
     }
 
@@ -48,4 +51,7 @@ internal class RequiredHolderImpl : Required.Holder {
 fun <T> required() = Required<T>()
 fun <T> requiredByCozy(cozy: Cozy<out Required.Holder>) = Required<T> { cozy.getValue(null, null) }
 fun <T> withRequired(closure: () -> T) = Required.Accessor(closure)
+
+internal fun <S, T : Maybe<S>> T.withRequired(closure: () -> S) = Required.Accessor(closure, this::value)
+
 fun requiredHolder(): Required.Holder = RequiredHolderImpl()

@@ -77,6 +77,7 @@ interface Attributes {
             val annotations: List<AnnotationSpec>
             fun annotate(assembler: Assembler<AnnotationBuilder>)
 
+            operator fun AnnotationSpec.unaryPlus()
             companion object {
                 inline fun <reified T> Annotations.annotate(
                     overload: Nothing? = null,
@@ -93,6 +94,8 @@ interface Attributes {
             val functions: List<FunSpec>
             fun function(assembler: Assembler<FunctionBuilder>)
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
+
+            operator fun FunSpec.unaryPlus()
         }
 
         interface Classes : Has {
@@ -100,12 +103,16 @@ interface Attributes {
             fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
             fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
             fun enum(name: String? = null, assembler: Assembler<TypeBuilder.Enum>)
+
+            operator fun TypeSpec.unaryPlus()
         }
 
         interface Properties : Has {
             val properties: List<PropertySpec>
             fun property(assembler: Assembler<PropertyBuilder>)
             fun property(name: String, assembler: Assembler<PropertyBuilder>)
+
+            operator fun PropertySpec.unaryPlus()
 
             companion object {
                 inline fun <reified T> Properties.property(
@@ -179,6 +186,10 @@ interface Attributes {
                 override fun annotate(assembler: Assembler<AnnotationBuilder>) {
                     holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
                 }
+
+                override fun AnnotationSpec.unaryPlus() {
+                    holder(source) += this
+                }
             }
 
 
@@ -196,6 +207,10 @@ interface Attributes {
 
                 override fun property(name: String, assembler: Assembler<PropertyBuilder>) {
                     holder(source).add(PropertyBuilder.cozy().apply { name(name) }.buildWith(assembler))
+                }
+
+                override fun PropertySpec.unaryPlus() {
+                    holder(source) += this
                 }
             }
 
@@ -219,6 +234,10 @@ interface Attributes {
 
                 override fun enum(name: String?, assembler: Assembler<TypeBuilder.Enum>) {
                     holder(source) += TypeBuilder.Enum.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
+                }
+
+                override fun TypeSpec.unaryPlus() {
+                    holder(source) += this
                 }
             }
 
@@ -273,6 +292,10 @@ interface Attributes {
 
                 override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
                     visitor(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
+                }
+
+                override fun FunSpec.unaryPlus() {
+                    visitor(source) += this
                 }
             }
 

@@ -20,7 +20,8 @@ class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder
         modifiers = PropertySpec.Builder::modifiers,
         annotations = PropertySpec.Builder::annotations
     ),
-    Required.Holder by requiredHolder() {
+    Required.Holder by requiredHolder(),
+    Maybe<PropertySpec.Builder> by maybe() {
 
     override val source by withRequired { PropertySpec.builder(name, type) }
 
@@ -56,5 +57,7 @@ class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder
         source.setter(FunctionBuilder.cozy().apply { setter() }.buildWith(assembler))
     }
 
-    companion object Initializer : Cozy.Initializer.Simple<PropertyBuilder> by cozied(::PropertyBuilder)
+    companion object Initializer :
+        Cozy.Initializer.Simple<PropertyBuilder> by cozied(::PropertyBuilder),
+        Crumple<PropertySpec, PropertyBuilder> by unstableMaybeCozyCrumple({ Initializer }, PropertySpec::toBuilder)
 }
