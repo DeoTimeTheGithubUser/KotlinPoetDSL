@@ -1,6 +1,7 @@
 package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.ParameterSpec
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
@@ -27,5 +28,5 @@ class ParameterBuilder private constructor(
         source.defaultValue(CodeBuilder.cozy().buildWith(assembler))
     }
 
-    companion object Initializer : Cozy.Initializer<ParameterBuilder> by cozied(::ParameterBuilder)
+    companion object Initializer : Cozy.Initializer.Simple<ParameterBuilder> by cozied(::ParameterBuilder)
 }

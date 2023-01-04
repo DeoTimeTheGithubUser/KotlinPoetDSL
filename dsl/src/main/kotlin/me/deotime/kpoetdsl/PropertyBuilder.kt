@@ -3,6 +3,7 @@ package me.deotime.kpoetdsl
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.jvm.transient
 import com.squareup.kotlinpoet.jvm.volatile
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
@@ -55,5 +56,5 @@ class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder
         source.setter(FunctionBuilder.cozy().apply { setter() }.buildWith(assembler))
     }
 
-    companion object Initializer : Cozy.Initializer<PropertyBuilder> by cozied(::PropertyBuilder)
+    companion object Initializer : Cozy.Initializer.Simple<PropertyBuilder> by cozied(::PropertyBuilder)
 }

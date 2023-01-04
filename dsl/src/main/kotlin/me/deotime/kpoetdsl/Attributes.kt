@@ -10,6 +10,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.CollectionAssembler
 import me.deotime.kpoetdsl.utils.Required
@@ -95,7 +96,8 @@ interface Attributes {
 
         interface Classes : Has {
             val types: List<TypeSpec>
-            fun type(name: String? = null, assembler: Assembler<TypeBuilder>)
+            fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
+            fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
             fun enum(name: String? = null, assembler: Assembler<TypeBuilder.Enum>)
         }
 
@@ -205,9 +207,14 @@ interface Attributes {
                 @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val types get() = holder(source).filterIsInstance<TypeSpec>()
 
-                override fun type(name: String?, assembler: Assembler<TypeBuilder>) {
-                    holder(source) += TypeBuilder.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>) {
+                    val builder = (if (kind == TypeKind._Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
+                    holder(source) += builder.apply { name(name) }.buildWith(assembler)
                 }
+
+                override fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>) =
+                    type("no-op", kind, assembler)
 
                 override fun enum(name: String?, assembler: Assembler<TypeBuilder.Enum>) {
                     holder(source) += TypeBuilder.Enum.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
