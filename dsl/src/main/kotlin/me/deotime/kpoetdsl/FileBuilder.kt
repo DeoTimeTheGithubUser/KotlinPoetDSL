@@ -57,11 +57,3 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
 
 inline fun kotlin(closure: FileBuilder.() -> Unit) =
     FileBuilder.cozy().buildWith(closure)
-
-fun main() {
-    val code = kotlin {
-        type("Glitchy", Class) {
-
-        }
-    }
-}
