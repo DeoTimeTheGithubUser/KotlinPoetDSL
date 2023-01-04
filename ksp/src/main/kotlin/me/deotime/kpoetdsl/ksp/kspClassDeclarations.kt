@@ -1,7 +1,6 @@
 package me.deotime.kpoetdsl.ksp
 
 import com.google.devtools.ksp.symbol.ClassKind
-import com.squareup.kotlinpoet.FunSpec
 import me.deotime.kpoetdsl.TypeKind
 
 val ClassKind.typeKind get() = let {
