@@ -15,6 +15,6 @@ class Cozy<T> {
 
 }
 
-inline fun <reified T> cozied(noinline initializer: (Cozy<T>) -> T) = object : Cozy.Initializer<T> {
+fun <T> cozied(initializer: (Cozy<T>) -> T) = object : Cozy.Initializer<T> {
     override fun cozy() = Cozy<T>().let { cozy -> initializer(cozy).also { cozy(it) } }
 }
