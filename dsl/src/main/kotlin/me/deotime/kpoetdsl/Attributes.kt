@@ -181,7 +181,7 @@ interface Attributes {
             object : Has.Annotations, Sourced<S> by sourcedByCozy(cozy), Additive<AnnotationSpec> by adder(cozy, holder) {
                 override val annotations get() = holder(source).toList()
                 override fun annotate(assembler: Assembler<AnnotationBuilder>) {
-                    +AnnotationBuilder.cozy().buildWith(assembler)
+                    holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
                 }
             }
 
@@ -195,11 +195,11 @@ interface Attributes {
                 @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val properties get() = holder(source).filterIsInstance<PropertySpec>()
                 override fun property(assembler: Assembler<PropertyBuilder>) {
-                    +PropertyBuilder.cozy().buildWith(assembler)
+                    holder(source).add(PropertyBuilder.cozy().buildWith(assembler))
                 }
 
                 override fun property(name: String, assembler: Assembler<PropertyBuilder>) {
-                    +PropertyBuilder.cozy().apply { name(name) }.buildWith(assembler)
+                    holder(source).add(PropertyBuilder.cozy().apply { name(name) }.buildWith(assembler))
                 }
             }
 
@@ -215,14 +215,14 @@ interface Attributes {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>) {
                     val builder = (if (kind == TypeKind.Scope.Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
-                    +builder.apply { name(name) }.buildWith(assembler)
+                    holder(source) += builder.apply { name(name) }.buildWith(assembler)
                 }
 
                 override fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>) =
                     type("no-op", kind, assembler)
 
                 override fun enum(name: String?, assembler: Assembler<TypeBuilder.Enum>) {
-                    +TypeBuilder.Enum.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
+                    holder(source) += TypeBuilder.Enum.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
                 }
             }
 
@@ -272,11 +272,11 @@ interface Attributes {
                 @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val functions get() = visitor(source).filterIsInstance<FunSpec>()
                 override fun function(assembler: Assembler<FunctionBuilder>) {
-                    +FunctionBuilder.cozy().buildWith(assembler)
+                    visitor(source) += FunctionBuilder.cozy().buildWith(assembler)
                 }
 
                 override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
-                    +FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
+                    visitor(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
                 }
             }
 
