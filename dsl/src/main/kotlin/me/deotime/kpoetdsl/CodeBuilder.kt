@@ -1,6 +1,7 @@
 package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.CodeBlock
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.utils.buildWith
 
 class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :

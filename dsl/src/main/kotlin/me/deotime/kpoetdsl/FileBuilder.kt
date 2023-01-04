@@ -3,7 +3,13 @@ package me.deotime.kpoetdsl
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.MemberName
+import me.deotime.kpoetdsl.AnnotationBuilder.UseSiteTarget.File
+import me.deotime.kpoetdsl.Attributes.Has.Annotations.Companion.annotation
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
+import me.deotime.kpoetdsl.TypeKind.Companion.Anonymous
 import me.deotime.kpoetdsl.TypeKind.Companion.Class
+import me.deotime.kpoetdsl.TypeKind.Companion.Enum
+import me.deotime.kpoetdsl.TypeKind.Companion.Interface
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
 import me.deotime.kpoetdsl.utils.buildWith
@@ -55,9 +61,3 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
 
 inline fun kotlin(closure: FileBuilder.() -> Unit) =
     FileBuilder.cozy().buildWith(closure)
-
-fun main() {
-    val code = kotlin {
-        
-    }
-}
