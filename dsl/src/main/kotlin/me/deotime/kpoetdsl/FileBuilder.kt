@@ -2,7 +2,11 @@ package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
+import me.deotime.kpoetdsl.FunctionBuilder.Initializer.invoke
+import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Class
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
 import me.deotime.kpoetdsl.utils.buildWith
@@ -20,7 +24,8 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, FileSpec.Builder::members),
     Attributes.Has.Annotations by Attributes.annotationVisitor(cozy, FileSpec.Builder::annotations),
     Attributes.Has.Classes by Attributes.classesVisitor(cozy, FileSpec.Builder::members),
-    Required.Holder by requiredHolder() {
+    Required.Holder by requiredHolder(),
+    TypeKind.Scope {
 
     private var pack by required<String>()
     override val source by withRequired { FileSpec.builder(pack, name) }
@@ -49,7 +54,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
 
     override fun build() = KotlinCode(source.build())
 
-    companion object Initializer : Cozy.Initializer<FileBuilder> by cozied(::FileBuilder)
+    companion object Initializer : Cozy.Initializer.Simple<FileBuilder> by cozied(::FileBuilder)
 }
 
 inline fun kotlin(closure: FileBuilder.() -> Unit) =

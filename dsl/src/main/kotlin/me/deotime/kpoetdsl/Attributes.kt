@@ -10,6 +10,8 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
+import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Enum
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.CollectionAssembler
 import me.deotime.kpoetdsl.utils.Required
@@ -73,14 +75,15 @@ interface Attributes {
 
         interface Annotations : Has {
             val annotations: List<AnnotationSpec>
-            fun annotation(assembler: Assembler<AnnotationBuilder>)
+            fun annotate(assembler: Assembler<AnnotationBuilder>)
 
+            operator fun AnnotationSpec.unaryPlus()
             companion object {
-                inline fun <reified T> Annotations.annotation(
+                inline fun <reified T> Annotations.annotate(
                     overload: Nothing? = null,
                     crossinline assembler: Assembler<AnnotationBuilder> = {}
                 ) =
-                    annotation {
+                    annotate {
                         type<T>()
                         assembler()
                     }
@@ -91,18 +94,25 @@ interface Attributes {
             val functions: List<FunSpec>
             fun function(assembler: Assembler<FunctionBuilder>)
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
+
+            operator fun FunSpec.unaryPlus()
         }
 
         interface Classes : Has {
             val types: List<TypeSpec>
-            fun type(name: String? = null, assembler: Assembler<TypeBuilder>)
+            fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
+            fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
             fun enum(name: String? = null, assembler: Assembler<TypeBuilder.Enum>)
+
+            operator fun TypeSpec.unaryPlus()
         }
 
         interface Properties : Has {
             val properties: List<PropertySpec>
             fun property(assembler: Assembler<PropertyBuilder>)
             fun property(name: String, assembler: Assembler<PropertyBuilder>)
+
+            operator fun PropertySpec.unaryPlus()
 
             companion object {
                 inline fun <reified T> Properties.property(
@@ -173,8 +183,12 @@ interface Attributes {
         ): Has.Annotations =
             object : Has.Annotations, Sourced<S> by sourcedByCozy(cozy) {
                 override val annotations get() = holder(source).toList()
-                override fun annotation(assembler: Assembler<AnnotationBuilder>) {
+                override fun annotate(assembler: Assembler<AnnotationBuilder>) {
                     holder(source).add(AnnotationBuilder.cozy().buildWith(assembler))
+                }
+
+                override fun AnnotationSpec.unaryPlus() {
+                    holder(source) += this
                 }
             }
 
@@ -194,6 +208,10 @@ interface Attributes {
                 override fun property(name: String, assembler: Assembler<PropertyBuilder>) {
                     holder(source).add(PropertyBuilder.cozy().apply { name(name) }.buildWith(assembler))
                 }
+
+                override fun PropertySpec.unaryPlus() {
+                    holder(source) += this
+                }
             }
 
 
@@ -205,12 +223,21 @@ interface Attributes {
                 @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val types get() = holder(source).filterIsInstance<TypeSpec>()
 
-                override fun type(name: String?, assembler: Assembler<TypeBuilder>) {
-                    holder(source) += TypeBuilder.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>) {
+                    val builder = (if (kind == TypeKind.Scope.Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
+                    holder(source) += builder.apply { name(name) }.buildWith(assembler)
                 }
+
+                override fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>) =
+                    type("no-op", kind, assembler)
 
                 override fun enum(name: String?, assembler: Assembler<TypeBuilder.Enum>) {
                     holder(source) += TypeBuilder.Enum.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
+                }
+
+                override fun TypeSpec.unaryPlus() {
+                    holder(source) += this
                 }
             }
 
@@ -265,6 +292,10 @@ interface Attributes {
 
                 override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
                     visitor(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
+                }
+
+                override fun FunSpec.unaryPlus() {
+                    visitor(source) += this
                 }
             }
 

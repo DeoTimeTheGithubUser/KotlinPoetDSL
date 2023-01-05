@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.buildWith
@@ -27,6 +28,7 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         modifiers = FunSpec.Builder::modifiers,
         annotations = FunSpec.Builder::annotations,
     ),
+    Maybe<FunSpec.Builder> by maybe(),
     Required.Holder by requiredHolder() {
 
     override val source by withRequired { model.builder(name) }
@@ -94,7 +96,9 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         name("no-op")
     }
 
-    companion object Initializer : Cozy.Initializer<FunctionBuilder> by cozied(::FunctionBuilder)
+    companion object Initializer :
+        Cozy.Initializer.Simple<FunctionBuilder> by cozied(::FunctionBuilder),
+        Crumple<FunSpec, FunctionBuilder> by unstableMaybeCozyCrumple({ Initializer }, FunSpec::toBuilder)
 
     @JvmInline
     value class Operator private constructor(val name: String) {
