@@ -1,6 +1,7 @@
 package me.deotime.kpoetdsl
 
 import me.deotime.kpoetdsl.utils.Empty
+import me.deotime.kpoetdsl.utils.buildWith
 import kotlin.reflect.KProperty
 
 class Cozy<T> {
@@ -17,6 +18,9 @@ class Cozy<T> {
         interface Simple<T> : Initializer<T, Empty> {
             companion object {
                 fun <T> Simple<T>.cozy() = cozy(Empty)
+
+                operator fun <A, B, C> A.invoke(closure: B.() -> Unit)
+                    where A : Simple<B>, B : Attributes.Buildable<C> = cozy().buildWith(closure)
             }
         }
     }

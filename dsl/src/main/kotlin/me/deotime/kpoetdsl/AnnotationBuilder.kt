@@ -44,6 +44,7 @@ class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBui
     object UseSiteTarget {
         inline val AnnotationBuilder.Get get() = AnnotationSpec.UseSiteTarget.GET
         inline val AnnotationBuilder.Set get() = AnnotationSpec.UseSiteTarget.SET
+        inline val AnnotationBuilder.Property get() = AnnotationSpec.UseSiteTarget.PROPERTY
         inline val AnnotationBuilder.Field get() = AnnotationSpec.UseSiteTarget.FIELD
         inline val AnnotationBuilder.Delegate get() = AnnotationSpec.UseSiteTarget.DELEGATE
         inline val AnnotationBuilder.SetParameter get() = AnnotationSpec.UseSiteTarget.SETPARAM
