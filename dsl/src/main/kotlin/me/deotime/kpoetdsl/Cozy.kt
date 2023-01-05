@@ -20,7 +20,7 @@ class Cozy<T> {
                 fun <T> Simple<T>.cozy() = cozy(Empty)
 
                 operator fun <A, B, C> A.invoke(closure: B.() -> Unit)
-                    where A : Simple<B>, B : Attributes.Buildable<C> = cozy().buildWith(closure)
+                        where A : Simple<B>, B : Attributes.Buildable<C> = cozy().buildWith(closure)
             }
         }
     }

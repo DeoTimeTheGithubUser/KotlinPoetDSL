@@ -15,10 +15,10 @@ import com.squareup.kotlinpoet.TypeVariableName
 fun KSTypeReference.asTypeName() = resolve().asTypeName()
 
 fun KSType.asTypeName(): TypeName = declaration.asClassName().let {
-    if(arguments.isNotEmpty()) it.parameterizedBy(
+    if (arguments.isNotEmpty()) it.parameterizedBy(
         arguments.map { it.asTypeVariableName() }
     ) else it
-} .copy(nullable = isMarkedNullable)
+}.copy(nullable = isMarkedNullable)
 
 fun KSTypeArgument.asTypeVariableName(): TypeName =
     if (variance == Variance.STAR) STAR

@@ -78,6 +78,7 @@ interface Attributes {
             fun annotate(assembler: Assembler<AnnotationBuilder>)
 
             operator fun AnnotationSpec.unaryPlus()
+
             companion object {
                 inline fun <reified T> Annotations.annotate(
                     overload: Nothing? = null,
@@ -90,7 +91,7 @@ interface Attributes {
             }
         }
 
-        interface Functions : Has {
+        interface Functions : Has, Operator.Scope {
             val functions: List<FunSpec>
             fun function(assembler: Assembler<FunctionBuilder>)
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
@@ -98,7 +99,7 @@ interface Attributes {
             operator fun FunSpec.unaryPlus()
         }
 
-        interface Classes : Has {
+        interface Classes : Has, TypeKind.Scope {
             val types: List<TypeSpec>
             fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
             fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
@@ -225,7 +226,8 @@ interface Attributes {
 
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>) {
-                    val builder = (if (kind == TypeKind.Scope.Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
+                    val builder =
+                        (if (kind == TypeKind.Scope.Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
                     holder(source) += builder.apply { name(name) }.buildWith(assembler)
                 }
 

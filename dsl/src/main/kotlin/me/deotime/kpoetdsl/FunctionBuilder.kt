@@ -65,7 +65,11 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         source.addParameter(ParameterBuilder.cozy().apply { name(name) }.buildWith(assembler))
     }
 
-    inline fun <reified T> parameter(name: String, overload: Nothing? = null, assembler: Assembler<ParameterBuilder> = {}) {
+    inline fun <reified T> parameter(
+        name: String,
+        overload: Nothing? = null,
+        assembler: Assembler<ParameterBuilder> = {}
+    ) {
         parameter(name) {
             type<T>()
             assembler()
@@ -73,8 +77,8 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
     }
 
 
-    fun operator(op: Operator.Companion.() -> Operator) {
-        name(op(Operator).name)
+    fun operator(op: Operator) {
+        name(op.name)
         modifiers { +KModifier.OPERATOR }
     }
 
@@ -100,37 +104,42 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         Cozy.Initializer.Simple<FunctionBuilder> by cozied(::FunctionBuilder),
         Crumple<FunSpec, FunctionBuilder> by unstableMaybeCozyCrumple({ Initializer }, FunSpec::toBuilder)
 
-    @JvmInline
-    value class Operator private constructor(val name: String) {
-        companion object {
-            val Plus = Operator("plus")
-            val Minus = Operator("minus")
-            val Times = Operator("times")
-            val Divide = Operator("divide")
-            val Modulo = Operator("rem")
+}
 
-            val Not = Operator("not")
+@JvmInline
+value class Operator private constructor(val name: String) {
 
-            val PlusAssign = Operator("plusAssign")
-            val MinusAssign = Operator("minusAssign")
-            val TimesAssign = Operator("timesAssign")
-            val DivideAssign = Operator("divideAssign")
-            val ModuloAssign = Operator("remAssign")
+    interface Scope {
+        companion object : Scope {
+            val Scope.Plus by lazy { Operator("plus") }
+            val Scope.Minus by lazy { Operator("minus") }
+            val Scope.Times by lazy { Operator("times") }
+            val Scope.Divide by lazy { Operator("divide") }
+            val Scope.Modulo by lazy { Operator("rem") }
 
-            val UnaryPlus = Operator("unaryPlus")
-            val UnaryMinus = Operator("unaryMinus")
+            val Scope.Not by lazy { Operator("not") }
 
-            val Inc = Operator("inc")
-            val Dec = Operator("dec")
+            val Scope.PlusAssign by lazy { Operator("plusAssign") }
+            val Scope.MinusAssign by lazy { Operator("minusAssign") }
+            val Scope.TimesAssign by lazy { Operator("timesAssign") }
+            val Scope.DivideAssign by lazy { Operator("divideAssign") }
+            val Scope.ModuloAssign by lazy { Operator("remAssign") }
 
-            val Get = Operator("get")
-            val Set = Operator("set")
+            val Scope.UnaryPlus by lazy { Operator("unaryPlus") }
+            val Scope.UnaryMinus by lazy { Operator("unaryMinus") }
 
-            val Range = Operator("rangeTo")
-            val Contains = Operator("contains")
-            val Invoke = Operator("invoke")
-            val Equals = Operator("equals")
-            val Compare = Operator("compareTo")
+            val Scope.Inc by lazy { Operator("inc") }
+            val Scope.Dec by lazy { Operator("dec") }
+
+            val Scope.Get by lazy { Operator("get") }
+            val Scope.Set by lazy { Operator("set") }
+
+            val Scope.Range by lazy { Operator("rangeTo") }
+            val Scope.Contains by lazy { Operator("contains") }
+            val Scope.Invoke by lazy { Operator("invoke") }
+            val Scope.Equals by lazy { Operator("equals") }
+            val Scope.Compare by lazy { Operator("compareTo") }
         }
     }
+
 }

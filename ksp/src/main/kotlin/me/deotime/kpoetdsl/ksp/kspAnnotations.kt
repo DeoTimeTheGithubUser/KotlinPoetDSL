@@ -20,17 +20,19 @@ fun KSAnnotation.toSpec() = let { ks ->
     AnnotationBuilder {
         type((ks.annotationType.resolve() as KSClassDeclaration).asClassName())
         useSiteTarget?.let {
-            target(when(it) {
-                AnnotationUseSiteTarget.FILE -> File
-                AnnotationUseSiteTarget.PROPERTY -> Property
-                AnnotationUseSiteTarget.FIELD -> Field
-                AnnotationUseSiteTarget.GET -> Get
-                AnnotationUseSiteTarget.SET -> Set
-                AnnotationUseSiteTarget.RECEIVER -> Receiver
-                AnnotationUseSiteTarget.PARAM -> Parameter
-                AnnotationUseSiteTarget.DELEGATE -> Delegate
-                AnnotationUseSiteTarget.SETPARAM -> SetParameter
-            })
+            target(
+                when (it) {
+                    AnnotationUseSiteTarget.FILE -> File
+                    AnnotationUseSiteTarget.PROPERTY -> Property
+                    AnnotationUseSiteTarget.FIELD -> Field
+                    AnnotationUseSiteTarget.GET -> Get
+                    AnnotationUseSiteTarget.SET -> Set
+                    AnnotationUseSiteTarget.RECEIVER -> Receiver
+                    AnnotationUseSiteTarget.PARAM -> Parameter
+                    AnnotationUseSiteTarget.DELEGATE -> Delegate
+                    AnnotationUseSiteTarget.SETPARAM -> SetParameter
+                }
+            )
         }
 
     }

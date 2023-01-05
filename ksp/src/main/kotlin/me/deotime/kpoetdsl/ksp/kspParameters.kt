@@ -10,9 +10,9 @@ fun KSValueParameter.toSpec() = let { ks ->
         ks.name?.asString()?.let { name(it) }
         type(ks.type.resolve().asTypeName())
         modifiers {
-            if(ks.isVararg) +KModifier.VARARG
-            if(ks.isCrossInline) +KModifier.NOINLINE
-            if(ks.isCrossInline) +KModifier.CROSSINLINE
+            if (ks.isVararg) +KModifier.VARARG
+            if (ks.isCrossInline) +KModifier.NOINLINE
+            if (ks.isCrossInline) +KModifier.CROSSINLINE
         }
     }
 }

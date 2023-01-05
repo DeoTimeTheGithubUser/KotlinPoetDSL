@@ -24,8 +24,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     Attributes.Has.Functions by Attributes.functionVisitor(cozy, FileSpec.Builder::members),
     Attributes.Has.Annotations by Attributes.annotationVisitor(cozy, FileSpec.Builder::annotations),
     Attributes.Has.Classes by Attributes.classesVisitor(cozy, FileSpec.Builder::members),
-    Required.Holder by requiredHolder(),
-    TypeKind.Scope {
+    Required.Holder by requiredHolder() {
 
     private var pack by required<String>()
     override val source by withRequired { FileSpec.builder(pack, name) }
