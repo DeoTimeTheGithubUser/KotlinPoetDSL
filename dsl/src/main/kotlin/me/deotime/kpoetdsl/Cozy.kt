@@ -21,6 +21,8 @@ class Cozy<T> {
 
                 operator fun <A, B, C> A.invoke(closure: B.() -> Unit)
                         where A : Simple<B>, B : Attributes.Buildable<C> = cozy().buildWith(closure)
+
+                operator fun <A : Simple<B>, B> A.invoke() = cozy()
             }
         }
     }
