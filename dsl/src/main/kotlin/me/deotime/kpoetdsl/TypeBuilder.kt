@@ -12,6 +12,7 @@ import me.deotime.kpoetdsl.utils.buildWith
 import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 
 sealed class TypeBuilder private constructor(
     private val cozy: Cozy<out TypeBuilder>,
@@ -104,8 +105,12 @@ sealed class TypeBuilder private constructor(
 
 }
 
+private typealias NormalTypeKind = TypeKind<TypeBuilder, TypeKind.Naming>
+
 @JvmInline
 value class TypeKind<T : TypeBuilder, N : TypeKind.Naming> private constructor(val init: (String) -> TypeSpec.Builder) {
+
+    operator fun getValue(ref: Any?, prop: KProperty<*>?) = this
 
     sealed interface Naming {
         sealed interface None : Naming
@@ -113,19 +118,17 @@ value class TypeKind<T : TypeBuilder, N : TypeKind.Naming> private constructor(v
 
     interface Scope {
         companion object : Scope {
-            private fun normalKind(init: (String) -> TypeSpec.Builder) =
-                lazy(LazyThreadSafetyMode.NONE) { TypeKind<TypeBuilder, Naming>(init) }
 
-            val Scope.Class by normalKind(TypeSpec.Companion::classBuilder)
-            val Scope.Interface by normalKind(TypeSpec.Companion::interfaceBuilder)
-            val Scope.Annotation by normalKind(TypeSpec.Companion::annotationBuilder)
-            val Scope.Object by normalKind(TypeSpec.Companion::objectBuilder)
-            val Scope.Value by normalKind(TypeSpec.Companion::valueClassBuilder)
-            val Scope.Functional by normalKind(TypeSpec.Companion::funInterfaceBuilder)
-            val Scope.Anonymous by lazy { TypeKind<TypeBuilder, Naming.None> { TypeSpec.anonymousClassBuilder() } }
-            val Scope.Enum by lazy { TypeKind<TypeBuilder.Enum, Naming>(TypeSpec.Companion::enumBuilder) }
+            val Scope.Class by NormalTypeKind(TypeSpec.Companion::classBuilder)
+            val Scope.Interface by NormalTypeKind(TypeSpec.Companion::interfaceBuilder)
+            val Scope.Annotation by NormalTypeKind(TypeSpec.Companion::annotationBuilder)
+            val Scope.Object by NormalTypeKind(TypeSpec.Companion::objectBuilder)
+            val Scope.Value by NormalTypeKind(TypeSpec.Companion::valueClassBuilder)
+            val Scope.Functional by NormalTypeKind(TypeSpec.Companion::funInterfaceBuilder)
+            val Scope.Anonymous by TypeKind<TypeBuilder, Naming.None> { TypeSpec.anonymousClassBuilder() }
+            val Scope.Enum by TypeKind<TypeBuilder.Enum, Naming>(TypeSpec.Companion::enumBuilder)
 
-            internal val Scope.Unknown get() = TypeKind<Nothing, Nothing> { error("Unknown kind cannot be created") }
+            internal val Scope.Unknown by TypeKind<Nothing, Nothing> { error("Unknown kind cannot be created") }
         }
     }
 }
