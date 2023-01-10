@@ -2,11 +2,8 @@ package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
-import me.deotime.kpoetdsl.FunctionBuilder.Initializer.invoke
-import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Class
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
 import me.deotime.kpoetdsl.utils.buildWith

@@ -41,6 +41,7 @@ class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBui
             AnnotationSpec::toBuilder
         )
 
+    @Suppress("unused")
     object UseSiteTarget {
         inline val AnnotationBuilder.Get get() = AnnotationSpec.UseSiteTarget.GET
         inline val AnnotationBuilder.Set get() = AnnotationSpec.UseSiteTarget.SET

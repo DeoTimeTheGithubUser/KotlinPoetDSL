@@ -16,7 +16,7 @@ fun KSTypeReference.asTypeName() = resolve().asTypeName()
 
 fun KSType.asTypeName(): TypeName = declaration.asClassName().let {
     if (arguments.isNotEmpty()) it.parameterizedBy(
-        arguments.map { it.asTypeVariableName() }
+        arguments.map { arg -> arg.asTypeVariableName() }
     ) else it
 }.copy(nullable = isMarkedNullable)
 

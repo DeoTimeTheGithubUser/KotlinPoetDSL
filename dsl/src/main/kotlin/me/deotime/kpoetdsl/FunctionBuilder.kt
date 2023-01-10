@@ -65,17 +65,6 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         source.addParameter(ParameterBuilder.cozy().apply { name(name) }.buildWith(assembler))
     }
 
-    inline fun <reified T> parameter(
-        name: String,
-        overload: Nothing? = null,
-        assembler: Assembler<ParameterBuilder> = {}
-    ) {
-        parameter(name) {
-            type<T>()
-            assembler()
-        }
-    }
-
 
     fun operator(op: Operator) {
         name(op.name)
@@ -102,7 +91,19 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
 
     companion object Initializer :
         Cozy.Initializer.Simple<FunctionBuilder> by cozied(::FunctionBuilder),
-        Crumple<FunSpec, FunctionBuilder> by unstableMaybeCozyCrumple({ Initializer }, FunSpec::toBuilder)
+        Crumple<FunSpec, FunctionBuilder> by unstableMaybeCozyCrumple({ Initializer }, FunSpec::toBuilder) {
+
+        @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+        inline fun <reified T> FunctionBuilder.parameter(
+            name: String,
+            assembler: Assembler<ParameterBuilder> = {}
+        ) {
+            parameter(name) {
+                type<T>()
+                assembler()
+            }
+        }
+    }
 
 }
 

@@ -1,3 +1,5 @@
+@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+
 package me.deotime.kpoetdsl
 
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -81,7 +83,6 @@ interface Attributes {
 
             companion object {
                 inline fun <reified T> Annotations.annotate(
-                    overload: Nothing? = null,
                     crossinline assembler: Assembler<AnnotationBuilder> = {}
                 ) =
                     annotate {
@@ -118,7 +119,6 @@ interface Attributes {
             companion object {
                 inline fun <reified T> Properties.property(
                     name: String,
-                    overload: Nothing? = null,
                     crossinline assembler: Assembler<PropertyBuilder>
                 ) =
                     property(name) {
