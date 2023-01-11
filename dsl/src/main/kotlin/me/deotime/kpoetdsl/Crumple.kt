@@ -1,7 +1,7 @@
 package me.deotime.kpoetdsl
 
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
-import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 
 fun interface Crumple<A, B> {
     operator fun A.invoke(closure: B.() -> Unit): A

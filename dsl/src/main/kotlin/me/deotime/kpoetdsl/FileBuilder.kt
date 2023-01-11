@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.MemberName
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
-import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.utils.required
 import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
@@ -26,7 +26,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     private var pack by required<String>()
     override val source by withRequired { FileSpec.builder(pack, name) }
 
-    infix fun Uses.Name.packaged(pack: String) {
+    infix fun Uses.Name.`package`(pack: String) {
         this@FileBuilder.pack = pack
     }
 

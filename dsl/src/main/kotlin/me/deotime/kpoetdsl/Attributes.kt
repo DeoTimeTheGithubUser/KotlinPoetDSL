@@ -11,6 +11,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.asTypeName
+import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Enum
@@ -19,7 +20,6 @@ import me.deotime.kpoetdsl.utils.CollectionAssembler
 import me.deotime.kpoetdsl.utils.Required
 import me.deotime.kpoetdsl.utils.Uses
 import me.deotime.kpoetdsl.utils.buildCollectionTo
-import me.deotime.kpoetdsl.utils.buildWith
 import me.deotime.kpoetdsl.utils.requiredByCozy
 import me.deotime.kpoetdsl.utils.requiredHolder
 import kotlin.reflect.KClass
@@ -34,6 +34,11 @@ interface Attributes {
 
     fun interface Buildable<T> : Attributes {
         fun build(): T
+
+        companion object {
+            inline fun <T : Attributes.Buildable<B>, B> T.buildWith(assembler: Assembler<T>) =
+                apply(assembler).build()
+        }
     }
 
     interface Property :

@@ -1,7 +1,7 @@
 package me.deotime.kpoetdsl
 
 import me.deotime.kpoetdsl.utils.Empty
-import me.deotime.kpoetdsl.utils.buildWith
+import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import kotlin.reflect.KProperty
 
 class Cozy<T> {
