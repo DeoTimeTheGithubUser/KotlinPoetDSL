@@ -4,11 +4,11 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
+import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
-import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
@@ -29,7 +29,8 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         annotations = FunSpec.Builder::annotations,
     ),
     Maybe<FunSpec.Builder> by maybe(),
-    Required.Holder by requiredHolder() {
+    Required.Holder by requiredHolder(),
+    Operator.Scope {
 
     override val source by withRequired { model.builder(name) }
 

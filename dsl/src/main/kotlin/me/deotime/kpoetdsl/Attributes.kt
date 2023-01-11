@@ -14,6 +14,7 @@ import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.Attributes.Has.Type.Companion.type
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
+import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.invoke
 import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Enum
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.CollectionAssembler
@@ -109,7 +110,8 @@ interface Attributes {
             val types: List<TypeSpec>
             fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
             fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
-            fun enum(name: String? = null, assembler: Assembler<TypeBuilder.Enum>)
+            fun enum(name: String, assembler: Assembler<TypeBuilder.Enum>)
+            fun annotation(name: String, assembler: Assembler<TypeBuilder.Annotation>)
 
             operator fun TypeSpec.unaryPlus()
         }
@@ -206,7 +208,9 @@ interface Attributes {
             object : Has.Properties, Sourced<S> by sourcedByCozy(cozy) {
 
                 @Suppress("UselessCallOnCollection") // inspection is wrong
-                override val properties get() = holder(source).filterIsInstance<PropertySpec>()
+                override val properties
+                    get() = holder(source).filterIsInstance<PropertySpec>()
+
                 override fun property(assembler: Assembler<PropertyBuilder>) {
                     holder(source).add(PropertyBuilder.cozy().buildWith(assembler))
                 }
@@ -227,20 +231,34 @@ interface Attributes {
         ): Has.Classes =
             object : Has.Classes, Sourced<S> by sourcedByCozy(cozy) {
                 @Suppress("UselessCallOnCollection") // inspection is wrong
-                override val types get() = holder(source).filterIsInstance<TypeSpec>()
+                override val types
+                    get() = holder(source).filterIsInstance<TypeSpec>()
 
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>) {
                     val builder =
                         (if (kind == TypeKind.Scope.Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
-                    holder(source) += builder.apply { name(name) }.buildWith(assembler)
+                    holder(source) += builder.buildWith {
+                        name(name)
+                        assembler()
+                    }
                 }
 
                 override fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>) =
                     type("no-op", kind, assembler)
 
-                override fun enum(name: String?, assembler: Assembler<TypeBuilder.Enum>) {
-                    holder(source) += TypeBuilder.Enum.cozy().apply { name?.let { name(it) } }.buildWith(assembler)
+                override fun enum(name: String, assembler: Assembler<TypeBuilder.Enum>) {
+                    holder(source) += TypeBuilder.Enum {
+                        name(name)
+                        assembler()
+                    }
+                }
+
+                override fun annotation(name: String, assembler: Assembler<TypeBuilder.Annotation>) {
+                    holder(source) += TypeBuilder.Annotation {
+                        name(name)
+                        assembler()
+                    }
                 }
 
                 override fun TypeSpec.unaryPlus() {
@@ -292,7 +310,9 @@ interface Attributes {
             object : Has.Functions, Sourced<S> by sourcedByCozy(cozy) {
 
                 @Suppress("UselessCallOnCollection") // inspection is wrong
-                override val functions get() = visitor(source).filterIsInstance<FunSpec>()
+                override val functions
+                    get() = visitor(source).filterIsInstance<FunSpec>()
+
                 override fun function(assembler: Assembler<FunctionBuilder>) {
                     visitor(source) += FunctionBuilder.cozy().buildWith(assembler)
                 }

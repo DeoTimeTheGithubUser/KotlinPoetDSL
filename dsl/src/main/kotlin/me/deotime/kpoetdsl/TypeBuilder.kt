@@ -3,16 +3,20 @@ package me.deotime.kpoetdsl
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
+import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
+import me.deotime.kpoetdsl.Attributes.Has.Annotations.Companion.annotate
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
+import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Annotation
 import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Enum
 import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Unknown
 import me.deotime.kpoetdsl.utils.Assembler
 import me.deotime.kpoetdsl.utils.Required
-import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.annotation.AnnotationRetention as KTAnnoRetention
+import kotlin.annotation.AnnotationTarget as KTAnnoTarget
 
 sealed class TypeBuilder private constructor(
     private val cozy: Cozy<out TypeBuilder>,
@@ -89,7 +93,66 @@ sealed class TypeBuilder private constructor(
             source.addEnumConstant(name, spec)
         }
 
-        companion object Initializer : Cozy.Initializer.Simple<Enum> by cozied(::Enum)
+        companion object Initializer :
+            Cozy.Initializer.Simple<Enum> by cozied(::Enum)
+    }
+
+    class Annotation(cozy: Cozy<Annotation>) :
+        TypeBuilder(cozy, TypeKind.Scope.Annotation) {
+
+
+        fun target(target: KTAnnoTarget) {
+            annotate<Target> {
+                member {
+                    +"%L"(target)
+                }
+            }
+        }
+
+        fun retention(retention: KTAnnoRetention) {
+            annotate<Retention> {
+                member {
+                    +"%L"(retention)
+                }
+            }
+        }
+
+        companion object Initializer :
+            Cozy.Initializer.Simple<Annotation> by cozied(::Annotation)
+    }
+
+    // https://youtrack.jetbrains.com/issue/KT-17455
+    object AnnotationRetention {
+        interface Scope {
+            companion object : Scope {
+                inline val Scope.Binary get() = KTAnnoRetention.BINARY
+                inline val Scope.Source get() = KTAnnoRetention.SOURCE
+                inline val Scope.Runtime get() = KTAnnoRetention.RUNTIME
+            }
+        }
+    }
+
+    // https://youtrack.jetbrains.com/issue/KT-17455
+    object AnnotationTarget {
+        interface Scope {
+            companion object : Scope {
+                inline val Scope.Type get() = KTAnnoTarget.TYPE
+                inline val Scope.Class get() = KTAnnoTarget.CLASS
+                inline val Scope.Annotation get() = KTAnnoTarget.ANNOTATION_CLASS
+                inline val Scope.TypeParameter get() = KTAnnoTarget.TYPE_PARAMETER
+                inline val Scope.Typealias get() = KTAnnoTarget.TYPEALIAS
+                inline val Scope.Parameter get() = KTAnnoTarget.VALUE_PARAMETER
+                inline val Scope.Setter get() = KTAnnoTarget.PROPERTY_SETTER
+                inline val Scope.Getter get() = KTAnnoTarget.PROPERTY_GETTER
+                inline val Scope.Property get() = KTAnnoTarget.PROPERTY
+                inline val Scope.Function get() = KTAnnoTarget.FUNCTION
+                inline val Scope.Expression get() = KTAnnoTarget.EXPRESSION
+                inline val Scope.Variable get() = KTAnnoTarget.LOCAL_VARIABLE
+                inline val Scope.Constructor get() = KTAnnoTarget.CONSTRUCTOR
+                inline val Scope.Field get() = KTAnnoTarget.FIELD
+                inline val Scope.File get() = KTAnnoTarget.FILE
+            }
+        }
     }
 
 

@@ -26,7 +26,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     private var pack by required<String>()
     override val source by withRequired { FileSpec.builder(pack, name) }
 
-    infix fun Uses.Name.`package`(pack: String) {
+    infix fun Uses.Name.packaged(pack: String) {
         this@FileBuilder.pack = pack
     }
 
