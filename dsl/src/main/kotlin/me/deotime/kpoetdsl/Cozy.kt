@@ -19,6 +19,7 @@ class Cozy<T> {
             companion object {
                 fun <T> Simple<T>.cozy() = cozy(Empty)
 
+                @KotlinPoetDsl
                 inline operator fun <A, B, C> A.invoke(closure: B.() -> Unit)
                         where A : Simple<B>, B : Attributes.Buildable<C> = cozy().buildWith(closure)
 

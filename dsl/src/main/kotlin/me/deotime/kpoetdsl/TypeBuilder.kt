@@ -18,6 +18,7 @@ import kotlin.reflect.KProperty
 import kotlin.annotation.AnnotationRetention as KTAnnoRetention
 import kotlin.annotation.AnnotationTarget as KTAnnoTarget
 
+@KotlinPoetDsl
 sealed class TypeBuilder private constructor(
     private val cozy: Cozy<out TypeBuilder>,
     private val kind: TypeKind<*, *>
@@ -41,14 +42,16 @@ sealed class TypeBuilder private constructor(
 
     private val primaryConstructor = FunctionBuilder.cozy().apply { constructor() }
 
+    @KotlinPoetDsl
     fun constructor(assembler: Assembler<FunctionBuilder>) {
         source.primaryConstructor(FunctionBuilder.cozy().buildWith(assembler))
     }
 
-    fun constructorProperty(assembler: Assembler<PropertyBuilder>) {
+    @KotlinPoetDsl
+    fun constructorProperty(propName: String, assembler: Assembler<PropertyBuilder>) {
         val prop = PropertyBuilder.cozy().buildWith {
             assembler()
-            initializer { +name }
+            initializer { +propName }
         }
         primaryConstructor.parameter(prop.name) {
             type(prop.type)
@@ -56,6 +59,7 @@ sealed class TypeBuilder private constructor(
         source.addProperty(prop)
     }
 
+    @KotlinPoetDsl
     fun initializer(assembler: Assembler<CodeBuilder>) {
         source.addInitializerBlock(CodeBuilder.cozy().buildWith(assembler))
     }
@@ -88,6 +92,7 @@ sealed class TypeBuilder private constructor(
     class Enum(cozy: Cozy<Enum>) : TypeBuilder(cozy, TypeKind.Scope.Enum) {
 
         inline val entries get(): Map<String, TypeSpec> = source.enumConstants
+        @KotlinPoetDsl
         inline fun entry(name: String, assembler: Assembler<TypeBuilder> = { }) {
             val spec = TypeBuilder.cozy(TypeKind.Scope.Enum).buildWith(assembler)
             source.addEnumConstant(name, spec)

@@ -54,4 +54,4 @@ fun <T> withRequired(closure: () -> T) = Required.Accessor(closure)
 
 internal fun <S, T : Maybe<S>> T.withRequired(closure: () -> S) = Required.Accessor(closure, this::value)
 
-fun requiredHolder(): Required.Holder = RequiredHolderImpl()
+internal fun requiredHolder(): Required.Holder = RequiredHolderImpl()

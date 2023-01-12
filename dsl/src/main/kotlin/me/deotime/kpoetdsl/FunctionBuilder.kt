@@ -14,6 +14,7 @@ import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
 import kotlin.reflect.typeOf
 
+@KotlinPoetDsl
 class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder>) :
     Attributes.Sourced<FunSpec.Builder>,
     Attributes.Buildable<FunSpec> by Attributes.buildWith(cozy, FunSpec.Builder::build),
@@ -58,12 +59,20 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         model = Model.Setter
     }
 
-    inline fun parameter(assembler: Assembler<ParameterBuilder>) {
-        source.addParameter(ParameterBuilder.cozy().buildWith(assembler))
-    }
-
+    @KotlinPoetDsl
     inline fun parameter(name: String, assembler: Assembler<ParameterBuilder>) {
         source.addParameter(ParameterBuilder.cozy().apply { name(name) }.buildWith(assembler))
+    }
+
+    @KotlinPoetDsl @JvmName("reified-parameter")
+    inline fun <reified T> parameter(
+        name: String,
+        assembler: Assembler<ParameterBuilder> = {}
+    ) {
+        parameter(name) {
+            type<T>()
+            assembler()
+        }
     }
 
 
@@ -92,19 +101,7 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
 
     companion object Initializer :
         Cozy.Initializer.Simple<FunctionBuilder> by cozied(::FunctionBuilder),
-        Crumple<FunSpec, FunctionBuilder> by unstableMaybeCozyCrumple({ Initializer }, FunSpec::toBuilder) {
-
-        @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-        inline fun <reified T> FunctionBuilder.parameter(
-            name: String,
-            assembler: Assembler<ParameterBuilder> = {}
-        ) {
-            parameter(name) {
-                type<T>()
-                assembler()
-            }
-        }
-    }
+        Crumple<FunSpec, FunctionBuilder> by unstableMaybeCozyCrumple({ Initializer }, FunSpec::toBuilder)
 
 }
 

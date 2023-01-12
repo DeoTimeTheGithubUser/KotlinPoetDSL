@@ -11,6 +11,7 @@ import me.deotime.kpoetdsl.utils.required
 import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 
+@KotlinPoetDsl
 class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBuilder>) :
     Attributes.Sourced<AnnotationSpec.Builder>,
     Attributes.Buildable<AnnotationSpec> by Attributes.buildWith(cozy, AnnotationSpec.Builder::build),
@@ -20,6 +21,7 @@ class AnnotationBuilder private constructor(private val cozy: Cozy<AnnotationBui
     private var type by required<ClassName>()
     override val source by withRequired { AnnotationSpec.builder(type) }
 
+    @KotlinPoetDsl
     inline fun member(assembler: Assembler<CodeBuilder>) {
         source.addMember(CodeBuilder.cozy().buildWith(assembler))
     }

@@ -13,6 +13,7 @@ import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 import kotlin.reflect.KClass
 
+@KotlinPoetDsl
 class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     Attributes.Buildable<KotlinCode>,
     Attributes.Sourced<FileSpec.Builder>,
@@ -54,5 +55,6 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
     companion object Initializer : Cozy.Initializer.Simple<FileBuilder> by cozied(::FileBuilder)
 }
 
+@KotlinPoetDsl
 inline fun kotlin(closure: FileBuilder.() -> Unit) =
     FileBuilder(closure)

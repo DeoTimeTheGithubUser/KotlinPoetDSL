@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 
+@KotlinPoetDsl
 class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
     Attributes.Buildable<CodeBlock> by Attributes.buildWith(cozy, CodeBlock.Builder::build),
     Attributes.Sourced<CodeBlock.Builder> {
@@ -16,8 +17,6 @@ class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
     operator fun String.unaryPlus() = +this()
     companion object Initializer : Cozy.Initializer.Simple<CodeBuilder> by cozied(::CodeBuilder)
 }
-
-inline fun code(closure: CodeBuilder.() -> Unit) = CodeBuilder.cozy().buildWith(closure)
 
 operator fun String.invoke(vararg args: Any?) = CodeBlock.of(this, *args)
 

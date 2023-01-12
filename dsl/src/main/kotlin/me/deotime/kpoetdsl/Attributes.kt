@@ -83,11 +83,13 @@ interface Attributes {
 
         interface Annotations : Has {
             val annotations: List<AnnotationSpec>
+            @KotlinPoetDsl
             fun annotate(assembler: Assembler<AnnotationBuilder>)
 
             operator fun AnnotationSpec.unaryPlus()
 
             companion object {
+                @KotlinPoetDsl
                 inline fun <reified T> Annotations.annotate(
                     crossinline assembler: Assembler<AnnotationBuilder> = {}
                 ) =
@@ -100,7 +102,9 @@ interface Attributes {
 
         interface Functions : Has, Operator.Scope {
             val functions: List<FunSpec>
+            @KotlinPoetDsl
             fun function(assembler: Assembler<FunctionBuilder>)
+            @KotlinPoetDsl
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
 
             operator fun FunSpec.unaryPlus()
@@ -108,9 +112,15 @@ interface Attributes {
 
         interface Classes : Has, TypeKind.Scope {
             val types: List<TypeSpec>
+
+            @KotlinPoetDsl
             fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
+            @KotlinPoetDsl
             fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
+
+            @KotlinPoetDsl
             fun enum(name: String, assembler: Assembler<TypeBuilder.Enum>)
+            @KotlinPoetDsl
             fun annotation(name: String, assembler: Assembler<TypeBuilder.Annotation>)
 
             operator fun TypeSpec.unaryPlus()
@@ -118,12 +128,15 @@ interface Attributes {
 
         interface Properties : Has {
             val properties: List<PropertySpec>
+            @KotlinPoetDsl
             fun property(assembler: Assembler<PropertyBuilder>)
+            @KotlinPoetDsl
             fun property(name: String, assembler: Assembler<PropertyBuilder>)
 
             operator fun PropertySpec.unaryPlus()
 
             companion object {
+                @KotlinPoetDsl
                 inline fun <reified T> Properties.property(
                     name: String,
                     crossinline assembler: Assembler<PropertyBuilder>
@@ -136,6 +149,7 @@ interface Attributes {
         }
 
         interface Code : Has {
+            @KotlinPoetDsl
             fun code(assembler: Assembler<CodeBuilder>)
             fun code(format: String, vararg args: Any?)
         }
@@ -145,6 +159,7 @@ interface Attributes {
         }
 
         interface Documentation : Has {
+            @KotlinPoetDsl
             fun documentation(assembler: Assembler<CodeBuilder>)
             fun documentation(format: String, vararg args: Any)
         }

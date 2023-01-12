@@ -8,6 +8,7 @@ import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 
+@KotlinPoetDsl
 class ParameterBuilder private constructor(
     private val cozy: Cozy<ParameterBuilder>,
 ) :
@@ -25,6 +26,7 @@ class ParameterBuilder private constructor(
 
     override val source by withRequired { ParameterSpec.builder(name, type) }
 
+    @KotlinPoetDsl
     fun default(assembler: Assembler<CodeBuilder>) {
         source.defaultValue(CodeBuilder.cozy().buildWith(assembler))
     }

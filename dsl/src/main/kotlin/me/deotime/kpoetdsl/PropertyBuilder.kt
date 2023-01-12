@@ -10,6 +10,7 @@ import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.utils.requiredHolder
 import me.deotime.kpoetdsl.utils.withRequired
 
+@KotlinPoetDsl
 class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder>) :
     Attributes.Sourced<PropertySpec.Builder>,
     Attributes.Buildable<PropertySpec> by Attributes.buildWith(cozy, PropertySpec.Builder::build),
@@ -41,18 +42,22 @@ class PropertyBuilder private constructor(private val cozy: Cozy<PropertyBuilder
         source.volatile()
     }
 
+    @KotlinPoetDsl
     fun initializer(assembler: Assembler<CodeBuilder>) {
         source.initializer(CodeBuilder.cozy().buildWith(assembler))
     }
 
+    @KotlinPoetDsl
     fun delegate(assembler: Assembler<CodeBuilder>) {
         source.delegate(CodeBuilder.cozy().buildWith(assembler))
     }
 
+    @KotlinPoetDsl
     fun getter(assembler: Assembler<FunctionBuilder>) {
         source.getter(FunctionBuilder.cozy().apply { getter() }.buildWith(assembler))
     }
 
+    @KotlinPoetDsl
     fun setter(assembler: Assembler<FunctionBuilder>) {
         source.setter(FunctionBuilder.cozy().apply { setter() }.buildWith(assembler))
     }
