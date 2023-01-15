@@ -1,4 +1,4 @@
-package me.deotime.kpoetdsl.utils
+package me.deotime.kpoetdsl.types
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
