@@ -4,8 +4,8 @@ import com.squareup.kotlinpoet.KModifier
 import kotlinx.metadata.Flag
 import kotlinx.metadata.Flags
 
-fun Flags.toModifiers() = buildList {
-    val flag = this@toModifiers
+fun Flags.toStandardModifiers() = buildList {
+    val flag = this@toStandardModifiers
 
     // general
     if (Flag.IS_ABSTRACT(flag)) add(KModifier.ABSTRACT)
@@ -29,6 +29,7 @@ fun Flags.toModifiers() = buildList {
     // properties
     if (Flag.Property.IS_LATEINIT(flag)) add(KModifier.LATEINIT)
     if (Flag.Property.IS_EXTERNAL(flag)) add(KModifier.EXTERNAL)
+    if (Flag.Property.IS_CONST(flag)) add(KModifier.CONST)
 
     // parameters
     if (Flag.ValueParameter.IS_CROSSINLINE(flag)) add(KModifier.CROSSINLINE)

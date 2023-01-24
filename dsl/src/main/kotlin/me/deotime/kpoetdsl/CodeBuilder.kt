@@ -3,6 +3,7 @@ package me.deotime.kpoetdsl
 import com.squareup.kotlinpoet.CodeBlock
 import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
+import me.deotime.kpoetdsl.utils.Assembler
 
 @KotlinPoetDsl
 class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
@@ -19,4 +20,6 @@ class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
 }
 
 operator fun String.invoke(vararg args: Any?) = CodeBlock.of(this, *args)
+
+typealias CodeAssembler = Assembler<CodeBuilder>
 

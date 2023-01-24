@@ -32,7 +32,7 @@ fun KmType.asTypeName(): TypeName =
 
 @ExperimentalKotlinPoetDSL
 fun KmTypeProjection.asTypeName() = let { km ->
-    km.type?.let {gi
+    km.type?.let {
         TypeVariableName(
             it.rawName,
             km.variance.toModifier()
