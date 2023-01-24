@@ -6,6 +6,7 @@ plugins {
 dependencies {
     api(project(":dsl"))
     api(project(":ksp"))
+    api(project(":metadata"))
 }
 
 publishing {

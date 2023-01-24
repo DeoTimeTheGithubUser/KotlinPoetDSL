@@ -56,6 +56,7 @@ interface Attributes {
         interface Modifiers : Has {
             val modifiers: List<KModifier>
             fun modifiers(vararg modifiers: KModifier)
+            fun modifiers(modifiers: List<KModifier>)
             fun modifiers(assembler: CollectionAssembler<KModifier>)
         }
 
@@ -83,6 +84,7 @@ interface Attributes {
 
         interface Annotations : Has {
             val annotations: List<AnnotationSpec>
+
             @KotlinPoetDsl
             fun annotate(assembler: Assembler<AnnotationBuilder>)
 
@@ -102,8 +104,10 @@ interface Attributes {
 
         interface Functions : Has, Operator.Scope {
             val functions: List<FunSpec>
+
             @KotlinPoetDsl
             fun function(assembler: Assembler<FunctionBuilder>)
+
             @KotlinPoetDsl
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
 
@@ -115,11 +119,13 @@ interface Attributes {
 
             @KotlinPoetDsl
             fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
+
             @KotlinPoetDsl
             fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
 
             @KotlinPoetDsl
             fun enum(name: String, assembler: Assembler<TypeBuilder.Enum>)
+
             @KotlinPoetDsl
             fun annotation(name: String, assembler: Assembler<TypeBuilder.Annotation>)
 
@@ -128,8 +134,10 @@ interface Attributes {
 
         interface Properties : Has {
             val properties: List<PropertySpec>
+
             @KotlinPoetDsl
             fun property(assembler: Assembler<PropertyBuilder>)
+
             @KotlinPoetDsl
             fun property(name: String, assembler: Assembler<PropertyBuilder>)
 
@@ -185,6 +193,10 @@ interface Attributes {
                 }
 
                 override fun modifiers(vararg modifiers: KModifier) {
+                    holder(source) += modifiers
+                }
+
+                override fun modifiers(modifiers: List<KModifier>) {
                     holder(source) += modifiers
                 }
             }
