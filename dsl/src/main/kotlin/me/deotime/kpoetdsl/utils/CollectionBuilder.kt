@@ -3,6 +3,9 @@ package me.deotime.kpoetdsl.utils
 interface CollectionBuilder<T> {
     operator fun T.unaryPlus()
     operator fun T.unaryMinus()
+
+    operator fun Iterable<T>.unaryPlus() = forEach { it.unaryPlus() }
+    operator fun Iterable<T>.unaryMinus() = forEach { it.unaryMinus() }
 }
 
 @PublishedApi
