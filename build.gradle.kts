@@ -16,8 +16,11 @@ allprojects {
     }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
-        kotlinOptions.languageVersion = "1.8"
+        kotlinOptions {
+            jvmTarget = "1.8"
+            languageVersion = "1.8"
+            freeCompilerArgs = listOf("-Xcontext-receivers")
+        }
     }
 
 

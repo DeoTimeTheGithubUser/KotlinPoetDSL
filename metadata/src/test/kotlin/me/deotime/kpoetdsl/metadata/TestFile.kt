@@ -2,15 +2,24 @@
 
 package me.deotime.kpoetdsl.metadata
 
-abstract class Test(
+import com.squareup.kotlinpoet.ExperimentalKotlinPoetApi
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.typeNameOf
+
+abstract class Test<T, V : Runnable>(
     val weight: Double
 ) {
 
     constructor(weight: Number) : this(weight.toDouble())
 
-    suspend inline fun test(): String {
+    suspend inline fun test(amount: String?): String {
         println("Hello")
         return "ok"
+    }
+
+    fun accept(closure: suspend context(Short, Char) Double.(String, Int) -> Boolean) {
+
     }
 
 }

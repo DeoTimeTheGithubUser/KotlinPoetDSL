@@ -10,7 +10,7 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("ksp") {
+        create<MavenPublication>("metadata") {
             artifactId = "kotlin-poet-dsl-metadata"
             from(components["java"])
         }
