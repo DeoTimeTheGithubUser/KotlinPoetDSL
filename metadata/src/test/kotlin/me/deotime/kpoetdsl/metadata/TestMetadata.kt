@@ -11,7 +11,7 @@ const val TestFileName = "TestMetadataFile"
 @OptIn(ExperimentalKotlinPoetDSL::class)
 fun main() {
     val self = MethodHandles.lookup().lookupClass()
-    val metadata = EnumThings::class.java.annotations.toList().filterIsInstance<Metadata>().firstOrNull() ?: error("Couldn't find metadata")
+    val metadata = Test::class.java.annotations.toList().filterIsInstance<Metadata>().firstOrNull() ?: error("Couldn't find metadata")
     val parsed = KotlinClassMetadata.read(metadata) as KotlinClassMetadata.Class
     val code = kotlin {
         name("Test") packaged "idk"

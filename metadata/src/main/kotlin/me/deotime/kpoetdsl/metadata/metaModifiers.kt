@@ -7,7 +7,7 @@ import kotlinx.metadata.Flags
 fun Flags.toStandardModifiers() = buildList {
     val flag = this@toStandardModifiers
 
-    if (Flag.IS_ABSTRACT(flag)) add(KModifier.ABSTRACT)
+    if (Flag.IS_ABSTRACT(flag) && !Flag.Class.IS_INTERFACE(flag)) add(KModifier.ABSTRACT)
     if (Flag.IS_OPEN(flag)) add(KModifier.OPEN)
     if (Flag.IS_SEALED(flag)) add(KModifier.SEALED)
 

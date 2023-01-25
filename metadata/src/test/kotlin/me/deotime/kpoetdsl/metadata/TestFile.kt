@@ -2,7 +2,11 @@
 
 package me.deotime.kpoetdsl.metadata
 
-object Test {
+abstract class Test(
+    val weight: Double
+) {
+
+    constructor(weight: Number) : this(weight.toDouble())
 
     suspend inline fun test(): String {
         println("Hello")
@@ -11,8 +15,6 @@ object Test {
 
 }
 
-enum class EnumThings {
-    Thing,
-    Other,
-    Awesome
+interface Other : Runnable {
+
 }

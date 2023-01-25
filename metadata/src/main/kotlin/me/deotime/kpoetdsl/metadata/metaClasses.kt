@@ -1,27 +1,52 @@
 package me.deotime.kpoetdsl.metadata
 
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.TypeAliasSpec
-import kotlinx.metadata.ExperimentalContextReceivers
 import kotlinx.metadata.Flag
 import kotlinx.metadata.Flags
 import kotlinx.metadata.KmClass
-import kotlinx.metadata.KmFunction
-import kotlinx.metadata.KmType
+import kotlinx.metadata.KmConstructor
 import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.invoke
 import me.deotime.kpoetdsl.ExperimentalKotlinPoetDSL
 import me.deotime.kpoetdsl.FunctionBuilder
+import me.deotime.kpoetdsl.PropertyBuilder.Initializer.invoke
 import me.deotime.kpoetdsl.TypeBuilder
 import me.deotime.kpoetdsl.TypeKind
+
+@ExperimentalKotlinPoetDSL
+fun KmConstructor.toSpec() = let { km ->
+    FunctionBuilder {
+        constructor()
+        km.valueParameters.forEach { +it.toSpec() }
+        modifiers(km.flags.toStandardModifiers())
+    }
+}
 
 @ExperimentalKotlinPoetDSL
 fun KmClass.toSpec() = let { km ->
     TypeBuilder.cozy(km.flags.toTypeKind()).buildWith {
         name(km.name.split("/").last())
         modifiers(flags.toClassModifiers())
-        km.properties.forEach { +it.toSpec() }
         km.functions.forEach { +it.toSpec() }
+        km.constructors.forEach {
+            val spec = it.toSpec()
+            if (!Flag.Constructor.IS_SECONDARY(it.flags)) {
+                source.primaryConstructor(spec)
+                val paramNames = spec.parameters.map { it.name }
+                km.properties.forEach {
+                    // good api design kotlinpoet!
+                    val prop = it.toSpec()
+                    if (it.name in paramNames) +prop {
+                        initializer {
+                            +it.name
+                        }
+                    } else +prop
+                }
+            }
+            else {
+                +spec
+                km.properties.forEach { +it.toSpec() }
+            }
+        }
         typeParameters {
             +km.typeParameters.map { it.asTypeName() }
         }
@@ -43,7 +68,7 @@ fun KmClass.toSpec() = let { km ->
     }
 }
 
-fun Flags.toTypeKind() = with (TypeKind.Scope) {
+fun Flags.toTypeKind() = with(TypeKind.Scope) {
     val flag = this@toTypeKind
     when {
         Flag.Class.IS_CLASS(flag) -> Class
