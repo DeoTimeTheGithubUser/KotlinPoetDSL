@@ -19,7 +19,6 @@ allprojects {
         kotlinOptions {
             jvmTarget = "1.8"
             languageVersion = "1.8"
-            freeCompilerArgs = listOf("-Xcontext-receivers")
         }
     }
 

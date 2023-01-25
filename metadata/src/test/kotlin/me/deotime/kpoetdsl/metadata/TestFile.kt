@@ -18,7 +18,7 @@ abstract class Test<T, V : Runnable>(
         return "ok"
     }
 
-    fun accept(closure: suspend context(Short, Char) Double.(String, Int) -> Boolean) {
+    fun accept(closure: context(Short, Char) Double.(String, Int) -> Boolean) {
 
     }
 
