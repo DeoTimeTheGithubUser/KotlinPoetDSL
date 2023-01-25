@@ -28,8 +28,8 @@ fun KmClass.toSpec() = let { km ->
 
         if (this is TypeBuilder.Enum) {
             km.enumEntries.forEach(this::entry)
+            km.supertypes.filterNot { it.rawName.startsWith("kotlin.Enum") }.forEach { implement(it.asTypeName()) }
         } else {
-            println("called?")
             km.supertypes.forEach {
                 // There unfortunately does not seem to be a way to check if
                 // this is an interface or a class kind, maybe some way of checking

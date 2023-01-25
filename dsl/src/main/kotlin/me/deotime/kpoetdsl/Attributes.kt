@@ -37,7 +37,7 @@ interface Attributes {
         fun build(): T
 
         companion object {
-            inline fun <T : Attributes.Buildable<B>, B> T.buildWith(assembler: Assembler<T>) =
+            inline fun <T : Buildable<B>, B> T.buildWith(assembler: Assembler<T>) =
                 apply(assembler).build()
         }
     }
@@ -257,14 +257,16 @@ interface Attributes {
             holder: (S) -> MutableList<in TypeSpec>
         ): Has.Classes =
             object : Has.Classes, Sourced<S> by sourcedByCozy(cozy) {
-                @Suppress("UselessCallOnCollection") // inspection is wrong
+                @Suppress("UselessCallOnCollection") // https://youtrack.jetbrains.com/issue/KTIJ-24175
                 override val types
                     get() = holder(source).filterIsInstance<TypeSpec>()
 
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>) {
-                    val builder =
-                        (if (kind == TypeKind.Scope.Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
+
+                    val builder = Cozy<T>().let { cozyHolder ->
+                        kind.builder(cozyHolder, kind).also { cozyHolder(it) }
+                    }
                     holder(source) += builder.buildWith {
                         name(name)
                         assembler()

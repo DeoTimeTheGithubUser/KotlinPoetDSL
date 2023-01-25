@@ -21,7 +21,7 @@ import kotlin.annotation.AnnotationTarget as KTAnnoTarget
 
 @KotlinPoetDsl
 sealed class TypeBuilder private constructor(
-    private val cozy: Cozy<out TypeBuilder>,
+    protected val cozy: Cozy<out TypeBuilder>,
     private val kind: TypeKind<*, *>
 ) :
     Attributes.Sourced<TypeSpec.Builder>,
@@ -95,7 +95,7 @@ sealed class TypeBuilder private constructor(
         inline val entries get(): Map<String, TypeSpec> = source.enumConstants
         @KotlinPoetDsl
         inline fun entry(name: String, assembler: Assembler<TypeBuilder> = { }) {
-            val spec = TypeBuilder.cozy(TypeKind.Scope.Enum).buildWith(assembler)
+            val spec = TypeBuilder.cozy(TypeKind.Scope.Anonymous).buildWith(assembler)
             source.addEnumConstant(name, spec)
         }
 
@@ -166,7 +166,9 @@ sealed class TypeBuilder private constructor(
 
     companion object Initializer :
         Cozy.Initializer<TypeBuilder, TypeKind<*, *>> by cozied(
-            { cozy, context -> context.builder(cozy, context) }
+            { cozy, context ->
+                (context as TypeKind<TypeBuilder, *>).builder(cozy, context)
+            }
         ),
         Crumple<TypeSpec, TypeBuilder> {
         override fun TypeSpec.invoke(closure: TypeBuilder.() -> Unit) = cozy(TypeKind.Scope.Unknown).apply {
@@ -178,7 +180,7 @@ sealed class TypeBuilder private constructor(
 
 
 class TypeKind<T : TypeBuilder, N : TypeKind.Naming> private constructor(
-    val builder: (Cozy<TypeBuilder>, TypeKind<*, *>) -> T,
+    val builder: (Cozy<T>, TypeKind<*, *>) -> T,
     val init: (String) -> TypeSpec.Builder
 ) {
 
