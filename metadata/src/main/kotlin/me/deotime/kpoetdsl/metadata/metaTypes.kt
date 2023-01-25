@@ -55,14 +55,16 @@ fun KmType.asTypeName(): TypeName =
                 } else returns = removeLast()
                 annos[ContextLambdaAnnotation]?.let {
                     if (suspend)
-                        error("""
+                        error(
+                            """
                             
                             
                             KotlinPoet currently renders suspending lambda types with context
                             receivers incorrectly, and as such cannot be used.
                             See: https://github.com/square/kotlinpoet/issues/1452
                             
-                        """.trimIndent())
+                        """.trimIndent()
+                        )
                     val count = (it.arguments["count"] as KmAnnotationArgument.IntValue).value
                     context {
                         repeat(count) { +removeFirst() }

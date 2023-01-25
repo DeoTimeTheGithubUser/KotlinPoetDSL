@@ -33,7 +33,6 @@ fun KmClass.toSpec() = let { km ->
                 source.primaryConstructor(spec)
                 val paramNames = spec.parameters.map { it.name }
                 km.properties.forEach {
-                    // good api design kotlinpoet!
                     val prop = it.toSpec()
                     if (it.name in paramNames) +prop {
                         initializer {
@@ -41,8 +40,7 @@ fun KmClass.toSpec() = let { km ->
                         }
                     } else +prop
                 }
-            }
-            else {
+            } else {
                 +spec
                 km.properties.forEach { +it.toSpec() }
             }

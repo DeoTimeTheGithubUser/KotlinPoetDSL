@@ -14,9 +14,7 @@ fun KmFunction.toSpec() = let { km ->
         returns(km.returnType.asTypeName())
         modifiers(km.flags.toFunctionModifiers())
         km.valueParameters.forEach { +it.toSpec() }
-        typeParameters {
-            +km.typeParameters.map { it.asTypeName() }
-        }
+        typeParameters { +km.typeParameters.map { it.asTypeName() } }
         km.receiverParameterType?.let { receiver(it.asTypeName()) }
         context(km.contextReceiverTypes.map { it.asTypeName() })
     }
