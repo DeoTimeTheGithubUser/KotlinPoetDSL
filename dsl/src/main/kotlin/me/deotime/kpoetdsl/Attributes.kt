@@ -73,6 +73,7 @@ interface Attributes {
 
             interface Parameters : Has {
                 val typeParameters: List<TypeVariableName>
+                fun typeParameters(params: Iterable<TypeVariableName>)
                 fun typeParameters(builder: CollectionAssembler<TypeVariableName>)
             }
 
@@ -207,6 +208,9 @@ interface Attributes {
         ): Has.Type.Parameters =
             object : Has.Type.Parameters, Sourced<S> by sourcedByCozy(cozy) {
                 override val typeParameters get() = holder(source).toList()
+                override fun typeParameters(params: Iterable<TypeVariableName>) {
+                    holder(source) += params
+                }
                 override fun typeParameters(builder: CollectionAssembler<TypeVariableName>) {
                     buildCollectionTo(holder(source), builder)
                 }

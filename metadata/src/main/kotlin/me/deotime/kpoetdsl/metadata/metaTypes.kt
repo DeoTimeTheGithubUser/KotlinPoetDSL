@@ -45,7 +45,7 @@ fun KmType.asTypeName(): TypeName =
     (if (rawName.startsWith("kotlin.Function"))
         lambdaType {
             suspend = Flag.Type.IS_SUSPEND(flags)
-            val args = arguments.map { it.asTypeName() }.toMutableList().apply {
+            arguments.map { it.asTypeName() }.toMutableList().apply {
                 val annos = annotations.associateBy { it.className }
                 if (suspend) {
                     removeLast()

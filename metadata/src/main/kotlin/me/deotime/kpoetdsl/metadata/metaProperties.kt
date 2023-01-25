@@ -10,8 +10,6 @@ fun KmProperty.toSpec() = let { km ->
     PropertyBuilder {
         name(km.name)
         type(km.returnType.asTypeName())
-        modifiers {
-            +km.flags.toPropertyModifiers()
-        }
+        modifiers(km.flags.toPropertyModifiers())
     }
 }
