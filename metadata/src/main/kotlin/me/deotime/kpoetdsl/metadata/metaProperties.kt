@@ -14,7 +14,7 @@ fun KmProperty.toSpec() = let { km ->
         name(km.name)
         type(km.returnType.asTypeName())
         modifiers {
-            +km.flags.toStandardModifiers()
+            +km.flags.toPropertyModifiers()
         }
     }
 }

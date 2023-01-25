@@ -11,8 +11,8 @@ fun KmValueParameter.toSpec() = let { km ->
     ParameterBuilder {
         name(km.name)
         type(km.type.asTypeName())
-        modifiers{
-            +km.flags.toStandardModifiers()
+        modifiers {
+            +km.flags.toParameterModifiers()
             km.varargElementType?.let { +KModifier.VARARG }
         }
     }

@@ -8,6 +8,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
 import kotlinx.metadata.KmClassifier
 import kotlinx.metadata.KmType
+import kotlinx.metadata.KmTypeParameter
 import kotlinx.metadata.KmTypeProjection
 import kotlinx.metadata.KmVariance
 import me.deotime.kpoetdsl.ExperimentalKotlinPoetDSL
@@ -17,8 +18,8 @@ val KmType.rawName
     get() = when (val classifier = classifier) {
         is KmClassifier.Class -> classifier.name
         is KmClassifier.TypeAlias -> classifier.name
-        is KmClassifier.TypeParameter -> error("Not entirely sure what to do with this")
-    }
+        is KmClassifier.TypeParameter -> "TypeVar${classifier.id}" // Not really sure what to do with this
+    }.replace("/", ".")
 
 fun KmVariance?.toModifier() = when (this) {
     KmVariance.IN -> KModifier.IN
@@ -28,14 +29,21 @@ fun KmVariance?.toModifier() = when (this) {
 
 @ExperimentalKotlinPoetDSL
 fun KmType.asTypeName(): TypeName =
-    ClassName.bestGuess(rawName).parameterizedBy(arguments.map { it.asTypeName() })
+    if (classifier is KmClassifier.TypeParameter) TypeVariableName(rawName)
+    else ClassName.bestGuess(rawName).let {
+        if (arguments.isNotEmpty()) it.parameterizedBy(arguments.map { it.asTypeName() })
+        else it
+    }
+
+@ExperimentalKotlinPoetDSL
+fun KmTypeParameter.asTypeName(): TypeVariableName =
+    TypeVariableName.invoke(
+        name,
+        upperBounds.map { it.asTypeName() },
+        variance = variance.toModifier()
+    )
 
 @ExperimentalKotlinPoetDSL
 fun KmTypeProjection.asTypeName() = let { km ->
-    km.type?.let {
-        TypeVariableName(
-            it.rawName,
-            km.variance.toModifier()
-        )
-    } ?: STAR
+    km.type?.asTypeName() ?: STAR
 }

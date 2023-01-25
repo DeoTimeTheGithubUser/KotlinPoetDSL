@@ -31,6 +31,7 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         modifiers = FunSpec.Builder::modifiers,
         annotations = FunSpec.Builder::annotations,
     ),
+    Attributes.Has.Type.Parameters by Attributes.parameterizedTypeVisitor(cozy, FunSpec.Builder::typeVariables),
     Maybe<FunSpec.Builder> by maybe(),
     Required.Holder by requiredHolder(),
     Operator.Scope {
