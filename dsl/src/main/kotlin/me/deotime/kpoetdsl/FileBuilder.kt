@@ -50,7 +50,7 @@ class FileBuilder private constructor(private val cozy: Cozy<FileBuilder>) :
 
     inline fun <reified T> import() = import(T::class)
 
-    override fun build() = KotlinCode(source.build())
+    override fun build() = KotlinCode(StringBuilder().apply(source.build()::writeTo).toString())
 
     companion object Initializer : Cozy.Initializer.Simple<FileBuilder> by cozied(::FileBuilder)
 }

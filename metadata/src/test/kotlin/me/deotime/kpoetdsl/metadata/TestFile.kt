@@ -2,8 +2,17 @@
 
 package me.deotime.kpoetdsl.metadata
 
-val thing: String = "ok"
+object Test {
 
-fun <T> test(value: Int): List<T> {
-    return emptyList()
+    suspend inline fun test(): String {
+        println("Hello")
+        return "ok"
+    }
+
+}
+
+enum class EnumThings {
+    Thing,
+    Other,
+    Awesome
 }

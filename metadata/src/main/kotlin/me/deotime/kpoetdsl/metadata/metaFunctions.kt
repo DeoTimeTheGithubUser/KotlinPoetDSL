@@ -12,7 +12,7 @@ fun KmFunction.toSpec() = let { km ->
     FunctionBuilder {
         name(km.name)
         returns(km.returnType.asTypeName())
-        modifiers(km.flags.toPropertyModifiers())
+        modifiers(km.flags.toFunctionModifiers())
         km.valueParameters.forEach { +it.toSpec() }
         typeParameters {
             +km.typeParameters.map { it.asTypeName() }

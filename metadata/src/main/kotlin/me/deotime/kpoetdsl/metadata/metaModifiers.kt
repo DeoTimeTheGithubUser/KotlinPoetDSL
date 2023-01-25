@@ -8,7 +8,6 @@ fun Flags.toStandardModifiers() = buildList {
     val flag = this@toStandardModifiers
 
     if (Flag.IS_ABSTRACT(flag)) add(KModifier.ABSTRACT)
-    if (Flag.IS_FINAL(flag)) add(KModifier.FINAL)
     if (Flag.IS_OPEN(flag)) add(KModifier.OPEN)
     if (Flag.IS_SEALED(flag)) add(KModifier.SEALED)
 
@@ -34,6 +33,20 @@ fun Flags.toFunctionModifiers() = buildList {
     if (Flag.Function.IS_SUSPEND(flag)) add(KModifier.SUSPEND)
     if (Flag.Function.IS_TAILREC(flag)) add(KModifier.TAILREC)
 }
+
+fun Flags.toClassModifiers() = buildList {
+    val flag = this@toClassModifiers
+
+    addAll(flag.toStandardModifiers())
+
+    // classes
+    if (Flag.Class.IS_DATA(flag)) add(KModifier.DATA)
+    if (Flag.Class.IS_COMPANION_OBJECT(flag)) add(KModifier.COMPANION)
+    if (Flag.Class.IS_EXPECT(flag)) add(KModifier.EXPECT)
+    if (Flag.Class.IS_EXTERNAL(flag)) add(KModifier.EXTERNAL)
+    if (Flag.Class.IS_INNER(flag)) add(KModifier.INNER)
+}
+
 
 fun Flags.toPropertyModifiers() = buildList {
     val flag = this@toPropertyModifiers
