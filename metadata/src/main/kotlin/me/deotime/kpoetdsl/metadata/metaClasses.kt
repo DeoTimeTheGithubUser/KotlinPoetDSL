@@ -27,24 +27,27 @@ fun KmClass.toSpec() = let { km ->
         name(km.name.split("/").last())
         modifiers(flags.toClassModifiers())
         km.functions.forEach { +it.toSpec() }
+        val props = km.properties.map { it.toSpec() }.associateBy { it.name }.toMutableMap()
         km.constructors.forEach {
             val spec = it.toSpec()
             if (!Flag.Constructor.IS_SECONDARY(it.flags)) {
                 source.primaryConstructor(spec)
-                val paramNames = spec.parameters.map { it.name }
-                km.properties.forEach {
-                    val prop = it.toSpec()
-                    if (it.name in paramNames) +prop {
-                        initializer {
-                            +it.name
+                spec.parameters.map { it.name }.forEach { param ->
+                    props.computeIfPresent(param) { _, prop ->
+                        prop {
+                            initializer {
+                                +prop.name
+                            }
                         }
-                    } else +prop
+                    }
                 }
             } else {
                 +spec
-                km.properties.forEach { +it.toSpec() }
             }
         }
+
+        props.values.forEach { +it }
+
         typeParameters {
             +km.typeParameters.map { it.asTypeName() }
         }
