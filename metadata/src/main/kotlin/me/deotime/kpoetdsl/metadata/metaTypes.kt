@@ -42,7 +42,7 @@ private const val ContextLambdaAnnotation = "kotlin/ContextFunctionTypeParams"
  */
 @ExperimentalKotlinPoetDSL
 fun KmType.asTypeName(): TypeName =
-    (if (rawName.startsWith("kotlin.Function"))
+    (if (rawName.startsWith("kotlin.Function") || rawName.startsWith("kotlin.reflect.KFunction"))
         lambdaType {
             suspend = Flag.Type.IS_SUSPEND(flags)
             arguments.map { it.asTypeName() }.toMutableList().apply {

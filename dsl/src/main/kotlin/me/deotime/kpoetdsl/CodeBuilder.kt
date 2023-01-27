@@ -16,6 +16,10 @@ class CodeBuilder private constructor(private val cozy: Cozy<CodeBuilder>) :
     }
 
     operator fun String.unaryPlus() = +this()
+
+    fun namedArguments(args: Map<String, Any?>) =
+        args.map { (name, value) -> "$name = $value" }.joinToString()
+
     companion object Initializer : Cozy.Initializer.Simple<CodeBuilder> by cozied(::CodeBuilder)
 }
 
