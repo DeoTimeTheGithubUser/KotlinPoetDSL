@@ -11,6 +11,7 @@ import me.deotime.kpoetdsl.FunctionBuilder
 import me.deotime.kpoetdsl.PropertyBuilder.Initializer.invoke
 import me.deotime.kpoetdsl.TypeBuilder
 import me.deotime.kpoetdsl.TypeKind
+import me.deotime.kpoetdsl.utils.Assembler
 
 fun KmConstructor.toSpec() = let { km ->
     FunctionBuilder {
@@ -20,7 +21,7 @@ fun KmConstructor.toSpec() = let { km ->
     }
 }
 
-fun KmClass.toSpec() = let { km ->
+fun KmClass.toSpec(assembler: Assembler<TypeBuilder> = {}) = let { km ->
     TypeBuilder.cozy(km.flags.toTypeKind()).buildWith {
         name(km.name.split("/").last())
         modifiers(flags.toClassModifiers())
@@ -64,6 +65,7 @@ fun KmClass.toSpec() = let { km ->
                 else implement(it.asTypeName())
             }
         }
+        assembler()
     }
 }
 
