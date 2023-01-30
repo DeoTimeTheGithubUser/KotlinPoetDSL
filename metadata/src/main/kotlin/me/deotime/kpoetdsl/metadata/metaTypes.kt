@@ -18,7 +18,6 @@ import kotlinx.metadata.jvm.annotations
 import me.deotime.kpoetdsl.ExperimentalKotlinPoetDSL
 import me.deotime.kpoetdsl.types.lambdaType
 
-@ExperimentalKotlinPoetDSL
 val KmType.rawName
     get() = when (val classifier = classifier) {
         is KmClassifier.Class -> classifier.name
@@ -40,7 +39,6 @@ private const val ContextLambdaAnnotation = "kotlin/ContextFunctionTypeParams"
  * with context receivers is put in as KotlinPoet renders it incorrectly.
  * https://github.com/square/kotlinpoet/issues/1452
  */
-@ExperimentalKotlinPoetDSL
 fun KmType.asTypeName(): TypeName =
     (if (rawName.startsWith("kotlin.Function") || rawName.startsWith("kotlin.reflect.KFunction"))
         lambdaType {
@@ -85,7 +83,6 @@ fun KmType.asTypeName(): TypeName =
         else it
     }).copy(Flag.Type.IS_NULLABLE(flags))
 
-@ExperimentalKotlinPoetDSL
 fun KmTypeParameter.asTypeName(): TypeVariableName =
     TypeVariableName.invoke(
         name,
@@ -93,7 +90,6 @@ fun KmTypeParameter.asTypeName(): TypeVariableName =
         variance = variance.toModifier()
     )
 
-@ExperimentalKotlinPoetDSL
 fun KmTypeProjection.asTypeName() = let { km ->
     km.type?.asTypeName() ?: STAR
 }

@@ -97,7 +97,6 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
 
     fun receiver(type: KClass<*>) = receiver(type.asTypeName())
 
-    @ExperimentalKotlinPoetDSL
     @OptIn(ExperimentalKotlinPoetApi::class)
     fun context(types: Iterable<TypeName>){
         source.contextReceivers(types)

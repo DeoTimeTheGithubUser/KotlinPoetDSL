@@ -6,7 +6,6 @@ import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.invoke
 import me.deotime.kpoetdsl.ExperimentalKotlinPoetDSL
 import me.deotime.kpoetdsl.ParameterBuilder
 
-@ExperimentalKotlinPoetDSL
 fun KmValueParameter.toSpec() = let { km ->
     ParameterBuilder {
         name(km.name)

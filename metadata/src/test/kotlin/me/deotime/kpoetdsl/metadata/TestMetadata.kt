@@ -8,7 +8,6 @@ import java.lang.invoke.MethodHandles
 
 const val TestFileName = "TestMetadataFile"
 
-@OptIn(ExperimentalKotlinPoetDSL::class)
 fun main() {
     val self = MethodHandles.lookup().lookupClass()
     val metadata = Test::class.java.annotations.toList().filterIsInstance<Metadata>().firstOrNull() ?: error("Couldn't find metadata")

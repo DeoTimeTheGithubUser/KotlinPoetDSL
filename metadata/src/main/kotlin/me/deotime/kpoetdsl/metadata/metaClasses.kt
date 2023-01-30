@@ -12,7 +12,6 @@ import me.deotime.kpoetdsl.PropertyBuilder.Initializer.invoke
 import me.deotime.kpoetdsl.TypeBuilder
 import me.deotime.kpoetdsl.TypeKind
 
-@ExperimentalKotlinPoetDSL
 fun KmConstructor.toSpec() = let { km ->
     FunctionBuilder {
         constructor()
@@ -21,7 +20,6 @@ fun KmConstructor.toSpec() = let { km ->
     }
 }
 
-@ExperimentalKotlinPoetDSL
 fun KmClass.toSpec() = let { km ->
     TypeBuilder.cozy(km.flags.toTypeKind()).buildWith {
         name(km.name.split("/").last())

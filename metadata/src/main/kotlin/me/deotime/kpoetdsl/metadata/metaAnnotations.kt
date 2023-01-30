@@ -18,7 +18,6 @@ import me.deotime.kpoetdsl.PropertyBuilder.Initializer.invoke
 import me.deotime.kpoetdsl.TypeBuilder
 import me.deotime.kpoetdsl.TypeKind
 
-@ExperimentalKotlinPoetDSL
 fun KmAnnotation.toSpec() = let { km ->
     AnnotationBuilder {
         type(ClassName.bestGuess(km.className))
