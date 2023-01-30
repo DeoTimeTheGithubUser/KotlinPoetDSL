@@ -37,7 +37,7 @@ interface Attributes {
         fun build(): T
 
         companion object {
-            inline fun <T : Attributes.Buildable<B>, B> T.buildWith(assembler: Assembler<T>) =
+            inline fun <T : Buildable<B>, B> T.buildWith(assembler: Assembler<T>) =
                 apply(assembler).build()
         }
     }
@@ -56,6 +56,7 @@ interface Attributes {
         interface Modifiers : Has {
             val modifiers: List<KModifier>
             fun modifiers(vararg modifiers: KModifier)
+            fun modifiers(modifiers: List<KModifier>)
             fun modifiers(assembler: CollectionAssembler<KModifier>)
         }
 
@@ -72,6 +73,7 @@ interface Attributes {
 
             interface Parameters : Has {
                 val typeParameters: List<TypeVariableName>
+                fun typeParameters(params: Iterable<TypeVariableName>)
                 fun typeParameters(builder: CollectionAssembler<TypeVariableName>)
             }
 
@@ -83,6 +85,7 @@ interface Attributes {
 
         interface Annotations : Has {
             val annotations: List<AnnotationSpec>
+
             @KotlinPoetDsl
             fun annotate(assembler: Assembler<AnnotationBuilder>)
 
@@ -102,8 +105,10 @@ interface Attributes {
 
         interface Functions : Has, Operator.Scope {
             val functions: List<FunSpec>
+
             @KotlinPoetDsl
             fun function(assembler: Assembler<FunctionBuilder>)
+
             @KotlinPoetDsl
             fun function(name: String, assembler: Assembler<FunctionBuilder>)
 
@@ -115,11 +120,13 @@ interface Attributes {
 
             @KotlinPoetDsl
             fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>)
+
             @KotlinPoetDsl
             fun <T : TypeBuilder> type(kind: TypeKind<T, TypeKind.Naming.None>, assembler: Assembler<T>)
 
             @KotlinPoetDsl
             fun enum(name: String, assembler: Assembler<TypeBuilder.Enum>)
+
             @KotlinPoetDsl
             fun annotation(name: String, assembler: Assembler<TypeBuilder.Annotation>)
 
@@ -128,8 +135,10 @@ interface Attributes {
 
         interface Properties : Has {
             val properties: List<PropertySpec>
+
             @KotlinPoetDsl
             fun property(assembler: Assembler<PropertyBuilder>)
+
             @KotlinPoetDsl
             fun property(name: String, assembler: Assembler<PropertyBuilder>)
 
@@ -187,16 +196,23 @@ interface Attributes {
                 override fun modifiers(vararg modifiers: KModifier) {
                     holder(source) += modifiers
                 }
+
+                override fun modifiers(modifiers: List<KModifier>) {
+                    holder(source) += modifiers
+                }
             }
 
         internal fun <S> parameterizedTypeVisitor(
             cozy: SourcedCozy<S>,
-            visitor: (S) -> MutableCollection<TypeVariableName>
+            holder: (S) -> MutableCollection<TypeVariableName>
         ): Has.Type.Parameters =
             object : Has.Type.Parameters, Sourced<S> by sourcedByCozy(cozy) {
-                override val typeParameters get() = visitor(source).toList()
+                override val typeParameters get() = holder(source).toList()
+                override fun typeParameters(params: Iterable<TypeVariableName>) {
+                    holder(source) += params
+                }
                 override fun typeParameters(builder: CollectionAssembler<TypeVariableName>) {
-                    buildCollectionTo(visitor(source), builder)
+                    buildCollectionTo(holder(source), builder)
                 }
             }
 
@@ -245,14 +261,16 @@ interface Attributes {
             holder: (S) -> MutableList<in TypeSpec>
         ): Has.Classes =
             object : Has.Classes, Sourced<S> by sourcedByCozy(cozy) {
-                @Suppress("UselessCallOnCollection") // inspection is wrong
+                @Suppress("UselessCallOnCollection") // https://youtrack.jetbrains.com/issue/KTIJ-24175
                 override val types
                     get() = holder(source).filterIsInstance<TypeSpec>()
 
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : TypeBuilder> type(name: String, kind: TypeKind<T, *>, assembler: Assembler<T>) {
-                    val builder =
-                        (if (kind == TypeKind.Scope.Enum) TypeBuilder.Enum.cozy() else TypeBuilder.cozy(kind)) as T
+
+                    val builder = Cozy<T>().let { cozyHolder ->
+                        kind.builder(cozyHolder, kind).also { cozyHolder(it) }
+                    }
                     holder(source) += builder.buildWith {
                         name(name)
                         assembler()
@@ -286,14 +304,14 @@ interface Attributes {
                 override fun build() = holder(source)
             }
 
-        internal fun <S> codeVisitor(cozy: SourcedCozy<S>, visitor: (S, CodeBlock) -> Unit): Has.Code =
+        internal fun <S> codeVisitor(cozy: SourcedCozy<S>, holder: (S, CodeBlock) -> Unit): Has.Code =
             object : Has.Code, Sourced<S> by sourcedByCozy(cozy) {
                 override fun code(assembler: Assembler<CodeBuilder>) {
-                    visitor(source, CodeBuilder.cozy().buildWith(assembler))
+                    holder(source, CodeBuilder.cozy().buildWith(assembler))
                 }
 
                 override fun code(format: String, vararg args: Any?) {
-                    visitor(source, CodeBlock.of(format, *args))
+                    holder(source, CodeBlock.of(format, *args))
                 }
             }
 
@@ -321,23 +339,23 @@ interface Attributes {
                 }
             }
 
-        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, visitor: (S) -> MutableList<in FunSpec>): Has.Functions =
+        internal fun <S> functionVisitor(cozy: SourcedCozy<S>, holder: (S) -> MutableList<in FunSpec>): Has.Functions =
             object : Has.Functions, Sourced<S> by sourcedByCozy(cozy) {
 
                 @Suppress("UselessCallOnCollection") // inspection is wrong
                 override val functions
-                    get() = visitor(source).filterIsInstance<FunSpec>()
+                    get() = holder(source).filterIsInstance<FunSpec>()
 
                 override fun function(assembler: Assembler<FunctionBuilder>) {
-                    visitor(source) += FunctionBuilder.cozy().buildWith(assembler)
+                    holder(source) += FunctionBuilder.cozy().buildWith(assembler)
                 }
 
                 override fun function(name: String, assembler: Assembler<FunctionBuilder>) {
-                    visitor(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
+                    holder(source) += FunctionBuilder.cozy().apply { name(name) }.buildWith(assembler)
                 }
 
                 override fun FunSpec.unaryPlus() {
-                    visitor(source) += this
+                    holder(source) += this
                 }
             }
 

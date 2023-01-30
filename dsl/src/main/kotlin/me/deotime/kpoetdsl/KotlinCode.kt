@@ -1,11 +1,14 @@
 package me.deotime.kpoetdsl
 
-import com.squareup.kotlinpoet.FileSpec
+data class KotlinCode(
+    val source: String,
+    val name: String,
+    val packageName: String,
+) {
 
-class KotlinCode(
-    override val source: FileSpec
-) : Attributes.Sourced<FileSpec> {
-    private val value = StringBuilder().apply(source::writeTo).toString()
+    // TODO This is obviously not reliable and should be actually be checked somehow
+    fun withoutPublic() = copy(source = source.replace("public ", ""))
+    fun properFormatting() = copy(source = source.replace("  ", "\t"))
 
-    override fun toString() = value
+    override fun toString() = source
 }

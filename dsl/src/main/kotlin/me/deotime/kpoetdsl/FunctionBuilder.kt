@@ -1,7 +1,9 @@
 package me.deotime.kpoetdsl
 
+import com.squareup.kotlinpoet.ExperimentalKotlinPoetApi
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
@@ -29,6 +31,7 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
         modifiers = FunSpec.Builder::modifiers,
         annotations = FunSpec.Builder::annotations,
     ),
+    Attributes.Has.Type.Parameters by Attributes.parameterizedTypeVisitor(cozy, FunSpec.Builder::typeVariables),
     Maybe<FunSpec.Builder> by maybe(),
     Required.Holder by requiredHolder(),
     Operator.Scope {
@@ -93,7 +96,16 @@ class FunctionBuilder private constructor(private val cozy: Cozy<FunctionBuilder
     }
 
     fun receiver(type: KClass<*>) = receiver(type.asTypeName())
+
+    @OptIn(ExperimentalKotlinPoetApi::class)
+    fun context(types: Iterable<TypeName>){
+        source.contextReceivers(types)
+    }
     inline fun <reified T> receiver() = receiver(typeOf<T>().asTypeName())
+
+    operator fun ParameterSpec.unaryPlus() {
+        source.addParameter(this)
+    }
 
     private fun nameNoOp() {
         name("no-op")

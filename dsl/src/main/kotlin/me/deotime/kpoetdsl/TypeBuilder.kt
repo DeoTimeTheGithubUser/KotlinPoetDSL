@@ -7,6 +7,7 @@ import me.deotime.kpoetdsl.Attributes.Buildable.Companion.buildWith
 import me.deotime.kpoetdsl.Attributes.Has.Annotations.Companion.annotate
 import me.deotime.kpoetdsl.Cozy.Initializer.Simple.Companion.cozy
 import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Annotation
+import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Anonymous
 import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Enum
 import me.deotime.kpoetdsl.TypeKind.Scope.Companion.Unknown
 import me.deotime.kpoetdsl.utils.Assembler
@@ -20,7 +21,7 @@ import kotlin.annotation.AnnotationTarget as KTAnnoTarget
 
 @KotlinPoetDsl
 sealed class TypeBuilder private constructor(
-    private val cozy: Cozy<out TypeBuilder>,
+    protected val cozy: Cozy<out TypeBuilder>,
     private val kind: TypeKind<*, *>
 ) :
     Attributes.Sourced<TypeSpec.Builder>,
@@ -38,7 +39,7 @@ sealed class TypeBuilder private constructor(
     Required.Holder by requiredHolder(),
     Maybe<TypeSpec.Builder> by maybe() {
 
-    override val source by withRequired { kind.init(if (kind == TypeKind.Scope.Enum) "no-op" else name) }
+    override val source by withRequired { kind.init(if (kind == TypeKind.Scope.Anonymous) "no-op" else name) }
 
     private val primaryConstructor = FunctionBuilder.cozy().apply { constructor() }
 
@@ -94,7 +95,7 @@ sealed class TypeBuilder private constructor(
         inline val entries get(): Map<String, TypeSpec> = source.enumConstants
         @KotlinPoetDsl
         inline fun entry(name: String, assembler: Assembler<TypeBuilder> = { }) {
-            val spec = TypeBuilder.cozy(TypeKind.Scope.Enum).buildWith(assembler)
+            val spec = TypeBuilder.cozy(TypeKind.Scope.Anonymous).buildWith(assembler)
             source.addEnumConstant(name, spec)
         }
 
@@ -161,10 +162,14 @@ sealed class TypeBuilder private constructor(
     }
 
 
-    private class Normal(cozy: Cozy<out TypeBuilder>, kind: TypeKind<*, *>) : TypeBuilder(cozy, kind)
+    internal class Normal(cozy: Cozy<out TypeBuilder>, kind: TypeKind<*, *>) : TypeBuilder(cozy, kind)
 
     companion object Initializer :
-        Cozy.Initializer<TypeBuilder, TypeKind<*, *>> by cozied(::Normal),
+        Cozy.Initializer<TypeBuilder, TypeKind<*, *>> by cozied(
+            { cozy, context ->
+                (context as TypeKind<TypeBuilder, *>).builder(cozy, context)
+            }
+        ),
         Crumple<TypeSpec, TypeBuilder> {
         override fun TypeSpec.invoke(closure: TypeBuilder.() -> Unit) = cozy(TypeKind.Scope.Unknown).apply {
             value = this@invoke.toBuilder()
@@ -173,10 +178,11 @@ sealed class TypeBuilder private constructor(
 
 }
 
-private typealias NormalTypeKind = TypeKind<TypeBuilder, TypeKind.Naming>
 
-@JvmInline
-value class TypeKind<T : TypeBuilder, N : TypeKind.Naming> private constructor(val init: (String) -> TypeSpec.Builder) {
+class TypeKind<T : TypeBuilder, N : TypeKind.Naming> private constructor(
+    val builder: (Cozy<T>, TypeKind<*, *>) -> T,
+    val init: (String) -> TypeSpec.Builder
+) {
 
     operator fun getValue(ref: Any?, prop: KProperty<*>?) = this
 
@@ -187,16 +193,19 @@ value class TypeKind<T : TypeBuilder, N : TypeKind.Naming> private constructor(v
     interface Scope {
         companion object : Scope {
 
+            private fun NormalTypeKind(init: (String) -> TypeSpec.Builder): TypeKind<TypeBuilder, Naming> = TypeKind(TypeBuilder::Normal, init)
+
             val Scope.Class by NormalTypeKind(TypeSpec.Companion::classBuilder)
             val Scope.Interface by NormalTypeKind(TypeSpec.Companion::interfaceBuilder)
             val Scope.Annotation by NormalTypeKind(TypeSpec.Companion::annotationBuilder)
             val Scope.Object by NormalTypeKind(TypeSpec.Companion::objectBuilder)
             val Scope.Value by NormalTypeKind(TypeSpec.Companion::valueClassBuilder)
             val Scope.Functional by NormalTypeKind(TypeSpec.Companion::funInterfaceBuilder)
-            val Scope.Anonymous by TypeKind<TypeBuilder, Naming.None> { TypeSpec.anonymousClassBuilder() }
-            val Scope.Enum by TypeKind<TypeBuilder.Enum, Naming>(TypeSpec.Companion::enumBuilder)
+            val Scope.Anonymous by TypeKind<TypeBuilder, Naming.None>(TypeBuilder::Normal) { TypeSpec.anonymousClassBuilder() }
+            @Suppress("UNCHECKED_CAST")
+            val Scope.Enum by TypeKind<TypeBuilder.Enum, Naming>({ cozy, _ -> TypeBuilder.Enum(cozy as Cozy<TypeBuilder.Enum>) }, TypeSpec.Companion::enumBuilder)
 
-            internal val Scope.Unknown by TypeKind<Nothing, Nothing> { error("Unknown kind cannot be created") }
+            internal val Scope.Unknown by TypeKind<Nothing, Nothing>({ _, _ -> error("Unknown kind cannot be created") }) { error("Unknown kind cannot be created") }
         }
     }
 }
