@@ -21,6 +21,10 @@ abstract class Test<T, V : Runnable>(
         return "ok"
     }
 
+    fun yes(vararg things: String) {
+        things.forEach { println(it) }
+    }
+
 }
 
 interface Other : Runnable {

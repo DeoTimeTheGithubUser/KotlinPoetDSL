@@ -10,13 +10,12 @@ import me.deotime.kpoetdsl.ParameterBuilder
 fun KmValueParameter.toSpec() = let { km ->
     ParameterBuilder {
         name(km.name)
-        type(km.type.asTypeName())
+        val vararg = km.varargElementType?.asTypeName()
+        type(vararg ?: km.type.asTypeName())
         modifiers {
             +km.flags.toParameterModifiers()
-            km.varargElementType?.let {
+            vararg?.let {
                 +KModifier.VARARG
-                // use the array type
-                type((type as ParameterizedTypeName).typeArguments.first())
             }
         }
     }
