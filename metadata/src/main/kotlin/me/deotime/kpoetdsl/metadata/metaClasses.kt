@@ -76,7 +76,7 @@ fun Flags.toTypeKind() = with(TypeKind.Scope) {
         Flag.Class.IS_ENUM_CLASS(flag) -> Enum
         Flag.Class.IS_ANNOTATION_CLASS(flag) -> Annotation
         Flag.Class.IS_INTERFACE(flag) -> Interface
-        Flag.Class.IS_OBJECT(flag) -> Object
+        Flag.Class.IS_OBJECT(flag) || Flag.Class.IS_COMPANION_OBJECT(flag) -> Object
         Flag.Class.IS_FUN(flag) -> Functional
         Flag.Class.IS_VALUE(flag) -> Value
         else -> error("Flag $flag did not match a type kind.")
